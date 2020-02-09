@@ -1,12 +1,8 @@
-from bottle import Bottle, run
-from app_foo.urls import call_router as category_route
-from app_book.urls import call_router as book_route
+from app_book.urls import BookRoute
+from app_foo.urls import CategoryRoute
 import sys
-from manager.core import execute_from_command_line
+from manager.core_manager import execute_from_command_line, Core
 
 if __name__ == '__main__':
-    app = Bottle()
     address = execute_from_command_line(sys.argv)
-    book_route(app)
-    category_route(app)
-    run(app, host=address['host'], port=address['port'])
+    Core(address)

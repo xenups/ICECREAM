@@ -1,5 +1,5 @@
 marshmallow
-bottle==0.12.18
+bottle
 sqlalchemy
 psycopg2-binary
 alembic

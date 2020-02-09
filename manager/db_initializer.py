@@ -8,6 +8,7 @@ connection_string = "postgresql://xenups:Qweasd1368@localhost/test"
 engine = create_engine(connection_string)
 Session = sessionmaker(bind=engine)
 db_session = Session()
+Session.configure(bind=engine)
 
 Base = declarative_base()
 
@@ -23,9 +24,6 @@ def get_db_session():
 def recreate_database():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
-
-
-Session = sessionmaker(bind=engine)
 
 
 @contextmanager

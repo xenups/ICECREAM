@@ -1,4 +1,4 @@
-from bottle import request
+from bottle import request, HTTPError
 from marshmallow import ValidationError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -23,7 +23,7 @@ def get_authors(db_session):
         result = serializer.dump(authors)
         return result
     except Exception as e:
-        return (e)
+        raise HTTPError(status=400)
 
 
 def new_quote(db_session, data):
