@@ -23,19 +23,7 @@ def pass_data(func):
     return wrapper
 
 
-def model_to_dict(obj):
-    object_dict = dict((name, getattr(obj, name)) for name in dir(obj) if
-                       (not name.startswith('_')) and not name.startswith(
-                           'mongo') and not name.startswith(
-                           'create_query')) if not isinstance(obj,
-                                                              dict) else obj
-
-    if "metadata" in object_dict:
-        del object_dict['metadata']
-    return object_dict
-
-
-def inject_db(func):
+def db_handler(func):
     def wrapper(*args, **kwargs):
         kwargs['db_session'] = get_db_session()
         rtn = func(*args, **kwargs)
@@ -45,24 +33,5 @@ def inject_db(func):
         except Exception as e:
             print(e)
         return rtn
-
-    return wrapper
-
-
-def jsonify(func):
-    def wrapper(*args, **kwargs):
-        rtn = func(*args, **kwargs)
-        result = None
-        if isinstance(rtn, list):
-            result = []
-            for item in rtn:
-                if isinstance(item, str):
-                    result.append(item)
-                else:
-                    result.append(model_to_dict(item))
-            result = {"result": result}
-        else:
-            result = model_to_dict(rtn)
-        return result
 
     return wrapper

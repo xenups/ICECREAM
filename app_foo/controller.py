@@ -1,5 +1,4 @@
 from marshmallow import ValidationError
-from manager.wrappers import model_to_dict
 from app_foo.models import Categores, Comments
 from app_foo.schemas import CategorySchema, CommentSchema
 
@@ -16,9 +15,9 @@ from app_foo.schemas import CategorySchema, CommentSchema
 def get_categories(db_session):
     categories = db_session.query(Categores).all()
     category_dict = []
-    for category in categories:
-        ca = model_to_dict(category)
-        category_dict.append(ca)
+    # for category in categories:
+        # ca = model_to_dict(category)
+        # category_dict.append(ca)
     return category_dict
 
 

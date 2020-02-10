@@ -1,10 +1,9 @@
-from bottle import request, HTTPError
+from bottle import request, HTTPError, HTTPResponse
 from marshmallow import ValidationError
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from psycopg2._psycopg import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 from app_book.models import Author, Quote
-from app_book.schemas import AuthorSchema, quote_serializer
-from manager.db_initializer import Base
+from app_book.schemas import AuthorSchema, quote_serializer, author_serializer, quotes_serializer
 
 
 # connection_string = "postgresql://xenups:Qweasd1368@localhost/test"
@@ -21,7 +20,7 @@ def get_authors(db_session):
         authors = db_session.query(Author).all()
         serializer = AuthorSchema(many=True)
         result = serializer.dump(authors)
-        return result
+        return HTTPResponse(status=200, body={'result': result})
     except Exception as e:
         raise HTTPError(status=400)
 
@@ -41,49 +40,40 @@ def new_quote(db_session, data):
         db_session.add(quote)
         db_session.commit()
         result = quote_serializer.dump(db_session.query(Quote).get(quote.id))
-        return result
+        return HTTPResponse(status=200, body={'result': result})
     except ValidationError as err:
         print(err.messages)
         return err.messages
 
-# @app.route("/api/v1/authors/<int:pk>")
-# def get_author(pk):
-#     try:
-#         author = Author.query.get(pk)
-#     except IntegrityError:
-#         return jsonify({"message": "Author could not be found."}), 400
-#     author_result = author_serializer.dump(author)
-#     quotes_result = quotes_serializer.dump(author.quotes.all())
-#     return jsonify({'author': author_result.data, 'quotes': quotes_result.data})
-#
-# @app.route('/api/v1/quotes', methods=['GET'])
-# def get_quotes():
-#     quotes = Quote.query.all()
-#     result = quotes_serializer.dump(quotes)
-#     return jsonify({"quotes": result.data})
-#
-# @app.route("/api/v1/quotes/<int:pk>")
-# def get_quote(pk):
-#     try:
-#         quote = Quote.query.get(pk)
-#     except IntegrityError:
-#         return jsonify({"message": "Quote could not be found."}), 400
-#     result = quote_serializer.dump(quote)
-#     return jsonify({"quote": result.data})
-#
-# @app.route("/api/v1/quotes/new", methods=["POST"])
-# def new_quote():
-#     first, last = request.json['author'].split(" ")
-#     content = request.json['quote']
-#     author = Author.query.filter_by(first=first, last=last).first()
-#     if author is None:
-#         # Create a new author
-#         author = Author(first, last)
-#         db.session.add(author)
-#     # Create new quote
-#     quote = Quote(content, author)
-#     db.session.add(quote)
-#     db.session.commit()
-#     result = quote_serializer.dump(Quote.query.get(quote.id))
-#     return jsonify({"message": "Created new quote.",
-#                     "quote": result.data})
+
+def get_author(pk, db_session):
+    try:
+        author = db_session.query(Author).get(pk)
+        if author is not None:
+            author_result = author_serializer.dump(author)
+            quotes_result = quotes_serializer.dump(author.quotes.all())
+            return HTTPResponse(status=200, body={'quotes': quotes_result, 'author': author_result})
+        else:
+            raise HTTPError(status=404, body='Not found {0}'.format(pk))
+    except NoResultFound as e:
+        print(e)
+
+
+def get_quotes(db_session):
+    quotes = db_session.query(Quote).all()
+    result = quotes_serializer.dump(quotes)
+    return HTTPResponse(status=200, body={'quote': result})
+
+
+def get_quote(pk, db_session):
+    try:
+        quote = db_session.query(Quote).get(pk)
+    except IntegrityError:
+        raise HTTPError(status=404, body='Not found {0}'.format(pk))
+    result = quote_serializer.dump(quote)
+    if quote is not None:
+        return HTTPResponse(status=200, body={'quote': result})
+
+
+def delete_quote(pk, db_session):
+    pass
