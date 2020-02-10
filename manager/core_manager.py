@@ -1,13 +1,20 @@
 from abc import ABC, abstractmethod
+from pydoc import locate
 
 from bottle import Bottle, run
 
 from manager.baseapp import BaseApp
+from settings import default_address, apps
+
+
+def get_default_address():
+    _default = default_address
+    return _default
 
 
 def execute_from_command_line(argv):
     try:
-        _address = {'host': '127.0.0.1', 'port': '8000'}
+        _address = get_default_address()
         if argv.__len__() > 1:
             arg_address = argv[1].split(':')
             _address['host'] = arg_address[0]
@@ -30,7 +37,13 @@ class Core(object):
         run(core, host=address['host'], port=address['port'])
 
     @staticmethod
-    def register_routers(core):
+    def initialize_baseapps():
+        for app in apps:
+            baseapp_class = locate(app)
+            instance = baseapp_class()
+
+    def register_routers(self, core):
+        self.initialize_baseapps()
         base_app_subclasses = get_subclasses(BaseApp)
         for sub_class in base_app_subclasses:
             sub_class.call_router(sub_class, core=core)
