@@ -23,7 +23,7 @@ def get_authors(db_session):
         result = serializer.dump(authors)
         return HTTPResponse(status=200, body={'result': result})
     except Exception as e:
-        raise HTTPError(status=400)
+        raise HTTPError(status=400, body={'error': e.args.__str__()})
 
 
 def new_quote(db_session, data):
@@ -57,7 +57,7 @@ def get_author(pk, db_session):
         else:
             raise HTTPError(status=404, body='Not found {0}'.format(pk))
     except NoResultFound as e:
-        print(e)
+        raise HTTPError(status=400, body={'error': e.args.__str__()})
 
 
 def get_quotes(db_session):

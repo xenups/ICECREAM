@@ -17,7 +17,8 @@ class Core(object):
         run(core, host=address['host'], port=address['port'])
 
     @staticmethod
-    def __execute_from_command_line(argv):
+    def __execute_from_command_line(argv) -> str:
+        """convert argv to address"""
         try:
             _address = get_default_address()
             if argv.__len__() > 1:
@@ -30,20 +31,22 @@ class Core(object):
 
     @staticmethod
     def __initialize_baseapps():
+        """subclasses populate from settings route"""
         try:
             for app in apps:
                 baseapp_class = locate(app)
                 instance = baseapp_class()
         except Exception as exception:
-            print('undefined app ')
-            raise exception
+            raise ValueError("undefined app")
 
     def __get_subclasses(self, cls):
+        """all of inherited classes from base app populate"""
         for subclass in cls.__subclasses__():
             yield from self.__get_subclasses(subclass)
             yield subclass
 
     def __register_routers(self, core):
+        """pass bottle core to subclasses"""
         self.__initialize_baseapps()
         base_app_subclasses = self.__get_subclasses(BaseApp)
         for sub_class in base_app_subclasses:
