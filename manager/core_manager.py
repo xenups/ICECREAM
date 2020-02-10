@@ -9,23 +9,24 @@ def get_default_address():
     return _default
 
 
-def execute_from_command_line(argv):
-    try:
-        _address = get_default_address()
-        if argv.__len__() > 1:
-            arg_address = argv[1].split(':')
-            _address['host'] = arg_address[0]
-            _address['port'] = arg_address[1]
-    except Exception as e:
-        raise ValueError('wrong address')
-    return _address
-
-
 class Core(object):
-    def __init__(self, address):
+    def __init__(self, args):
         core = Bottle()
         self.__register_routers(core)
+        address = self.__execute_from_command_line(args)
         run(core, host=address['host'], port=address['port'])
+
+    @staticmethod
+    def __execute_from_command_line(argv):
+        try:
+            _address = get_default_address()
+            if argv.__len__() > 1:
+                arg_address = argv[1].split(':')
+                _address['host'] = arg_address[0]
+                _address['port'] = arg_address[1]
+        except Exception as e:
+            raise ValueError('wrong address')
+        return _address
 
     @staticmethod
     def __initialize_baseapps():
