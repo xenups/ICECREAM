@@ -1,7 +1,6 @@
 # icecream framework settings
 apps = [
     'app_book.urls.BookApp',
-    'app_foo.urls.CategoryApp'
 ]
 default_address = {
     'host': '127.0.0.1',
