@@ -7,13 +7,13 @@ from manager.db_initializer import Base
 
 
 #
-connection_string = "postgresql://xenups:Qweasd1368@localhost/test"
-engine = create_engine(connection_string)
-Session = sessionmaker()
-Session.configure(bind=engine)
-Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
-session = Session()
+# connection_string = "postgresql://xenups:Qweasd1368@localhost/test"
+# engine = create_engine(connection_string)
+# Session = sessionmaker()
+# Session.configure(bind=engine)
+# Base.metadata.drop_all(engine)
+# Base.metadata.create_all(engine)
+# session = Session()
 
 
 class Author(Base):

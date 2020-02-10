@@ -3,7 +3,7 @@ from manager.baseapp import BaseApp
 from manager.wrappers import pass_data, inject_db, jsonify
 
 
-class CategoryRoute(BaseApp):
+class CategoryApp(BaseApp):
     def call_router(self, core):
         # wrappers = [check_auth, inject_db, jsonify, timeit]
         core.route('/getall', 'GET', get_categories, apply=[inject_db, jsonify])

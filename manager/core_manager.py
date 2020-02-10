@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from pydoc import locate
-
 from bottle import Bottle, run
-
 from manager.baseapp import BaseApp
 from settings import default_address, apps
 
@@ -10,6 +8,12 @@ from settings import default_address, apps
 def get_default_address():
     _default = default_address
     return _default
+
+
+def get_subclasses(cls):
+    for subclass in cls.__subclasses__():
+        yield from get_subclasses(subclass)
+        yield subclass
 
 
 def execute_from_command_line(argv):
@@ -24,12 +28,6 @@ def execute_from_command_line(argv):
     return _address
 
 
-def get_subclasses(cls):
-    for subclass in cls.__subclasses__():
-        yield from get_subclasses(subclass)
-        yield subclass
-
-
 class Core(object):
     def __init__(self, address):
         core = Bottle()
@@ -38,9 +36,12 @@ class Core(object):
 
     @staticmethod
     def initialize_baseapps():
-        for app in apps:
-            baseapp_class = locate(app)
-            instance = baseapp_class()
+        try:
+            for app in apps:
+                baseapp_class = locate(app)
+                instance = baseapp_class()
+        except Exception as exception:
+            raise exception
 
     def register_routers(self, core):
         self.initialize_baseapps()
