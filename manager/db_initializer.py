@@ -6,14 +6,6 @@ from sqlalchemy.util.compat import contextmanager
 
 from settings import database
 
-
-def get_database_uri():
-    uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
-                                                      database['db_host'], database['db_port'],
-                                                      database['db_name'])
-    return uri
-
-
 Base = declarative_base()
 
 
@@ -25,10 +17,16 @@ class DBConnector(object):
         return cls.instance
 
     def __init__(self):
-        self.engine = create_engine(get_database_uri())
+        self.engine = create_engine(self.get_database_uri())
         self.Session = sessionmaker(bind=self.engine)
         self.db_session = self.Session()
         self.Session.configure(bind=self.engine)
+
+    def get_database_uri(self):
+        uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
+                                                          database['db_host'], database['db_port'],
+                                                          database['db_name'])
+        return uri
 
 
 def get_db_session():
