@@ -1,6 +1,6 @@
 from bottle import request
 
-from manager.db_initializer import get_db_session
+from ICECREAM.db_initializer import get_db_session
 
 
 def pass_data(func):

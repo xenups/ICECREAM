@@ -2,7 +2,7 @@ import os
 import sys
 from pydoc import locate
 from bottle import Bottle, run
-from manager.baseapp import BaseApp
+from ICECREAM.baseapp import BaseApp
 from settings import default_address, apps
 
 
