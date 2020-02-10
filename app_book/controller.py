@@ -1,6 +1,7 @@
 from bottle import request, HTTPError, HTTPResponse
 from marshmallow import ValidationError
-from psycopg2._psycopg import IntegrityError
+from sqlalchemy.exc import IntegrityError
+
 from sqlalchemy.orm.exc import NoResultFound
 from app_book.models import Author, Quote
 from app_book.schemas import AuthorSchema, quote_serializer, author_serializer, quotes_serializer

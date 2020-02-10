@@ -19,16 +19,6 @@ class QuoteSchema(Schema):
         fields = ("id", "content", "posted_at", 'author')
 
 
-class SchemaError(Exception):
-    """Error that is raised when a marshalling or umarshalling error occurs.
-    Stores the dictionary of validation errors that occurred.
-    """
-
-    def __init__(self, message, errors):
-        Exception.__init__(self, message)
-        self.errors = errors
-
-
 author_serializer = AuthorSchema()
 quote_serializer = QuoteSchema()
 quotes_serializer = QuoteSchema(many=True, only=('id', 'content'))
