@@ -1,3 +1,4 @@
+import getopt
 import os
 import sys
 from pydoc import locate
@@ -15,32 +16,57 @@ commands_list = ['startapp', 'runserver', 'wsgi']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
-class CommandManager(object):
-    def __init__(self, argv):
+class CommandsParser(object):
+    def __init__(self, remainder):
         self.command = None
-        self.subcommand = None
-        if len(argv) > 1:
-            if argv[1] in str(commands_list):
-                self.command = argv[1]
-                if len(argv) == 2:
-                    self.subcommand = None
-                if len(argv) == 3:
-                    self.subcommand = argv[2]
-        else:
-            argv = None
+        self.subcommands = None
+        self.remainder = remainder
+
+    def get_command(self, ):
+        if self.remainder[0] in commands_list:
+            self.command = self.remainder[0]
+            return self.command
+
+    def get_subcommand(self, ):
+        if self.remainder[0] in commands_list:
+            self.command = self.remainder[0]
+            self.remainder.remove(self.command)
+            self.subcommands = []
+            for command in self.remainder:
+                self.subcommands.append(str(command))
+        return self.subcommands
+
+    def has_command(self) -> bool:
+        if not self.remainder:
+            return True
+        return False
+
+    def has_subcommand(self) -> bool:
+        if not self.get_subcommand():
+            return False
+        return True
+
+
+class CommandManager(object):
+
+    def __init__(self, commands):
+        self.command = CommandsParser(commands)
 
     def execute(self):
-        if self.command is None:
+        if self.command.has_command():
             core = Core()
             return core.execute_wsgi()
-        if self.command == 'startapp':
-            if self.subcommand is not None:
-                self.create_app(self.subcommand)
+        if self.command.get_command() == 'startapp':
+            if self.command.has_subcommand():
+                self.create_app(self.command.get_subcommand()[0])
             else:
                 sys.stdout.write('ICECREAM: Need to provide an app name' + '\n')
-        elif self.command == 'runserver':
+        elif self.command.get_command() == 'runserver':
             core = Core()
-            return core.execute_runserver(self.subcommand)
+            if self.command.has_subcommand():
+                return core.execute_runserver(self.command.get_subcommand()[0])
+            else:
+                return core.execute_runserver(None)
 
     @staticmethod
     def create_app(app_name):
@@ -59,13 +85,12 @@ class CommandManager(object):
 class Core(object):
     def __init__(self, ):
         self.core = Bottle()
+        self.__register_routers(self.core)
 
     def execute_wsgi(self):
-        self.__register_routers(self.core)
         return self.core
 
     def execute_runserver(self, address):
-        self.__register_routers(self.core)
         __address = self.__convert_command_to_address(address)
         run(self.core, host=__address['host'], port=__address['port'])
         return self.core

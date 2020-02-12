@@ -1,10 +1,13 @@
+import getopt
 import sys
 
 from ICECREAM.core_manager import CommandManager
 
 
 def main():
-    command = CommandManager(sys.argv)
+    """"using get opt to pass arguments and options from command line"""
+    options, argv = getopt.getopt(sys.argv[1:], 'o:v', )
+    command = CommandManager(argv)
     core = command.execute()
     return core
 
