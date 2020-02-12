@@ -2,6 +2,12 @@ import sys
 
 from ICECREAM.core_manager import CommandManager
 
-if __name__ == '__main__':
+
+def main():
     command = CommandManager(sys.argv)
-    command.execute()
+    core = command.execute()
+    return core
+
+
+if __name__ == '__main__':
+    main()
