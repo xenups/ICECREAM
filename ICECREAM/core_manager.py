@@ -17,27 +17,27 @@ list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
 class CommandsParser(object):
-    def __init__(self, remainder):
+    def __init__(self, opt_commands):
         self.command = None
         self.subcommands = None
-        self.remainder = remainder
+        self.opt_commands = opt_commands
 
     def get_command(self, ):
-        if self.remainder[0] in commands_list:
-            self.command = self.remainder[0]
+        if self.opt_commands[0] in commands_list:
+            self.command = self.opt_commands[0]
             return self.command
 
     def get_subcommand(self, ):
-        if self.remainder[0] in commands_list:
-            self.command = self.remainder[0]
-            self.remainder.remove(self.command)
+        if self.opt_commands[0] in commands_list:
+            self.command = self.opt_commands[0]
+            self.opt_commands.remove(self.command)
             self.subcommands = []
-            for command in self.remainder:
+            for command in self.opt_commands:
                 self.subcommands.append(str(command))
         return self.subcommands
 
     def has_command(self) -> bool:
-        if not self.remainder:
+        if not self.opt_commands:
             return True
         return False
 
