@@ -1,6 +1,5 @@
 from bottle import request
-
-from ICECREAM.db_initializer import get_db_session
+from ICECREAM.db_initializer import DBConnector, get_db_session
 
 
 def pass_data(func):
@@ -30,8 +29,10 @@ def db_handler(func):
         db_session = kwargs['db_session']
         try:
             db_session.commit()
-        except Exception as e:
-            print(e)
+        except:
+            print('ex')
+            # logger.exception(LogMsg.COMMIT_ERROR, exc_info=True)
+            # raise Http_error(500, Message.COMMIT_FAILED)
         return rtn
 
     return wrapper

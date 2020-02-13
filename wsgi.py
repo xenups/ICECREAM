@@ -1,5 +1,5 @@
-from manage import main
 import sys
+from manage import main
 
 
 def wsgi_app(*args, **kwargs):

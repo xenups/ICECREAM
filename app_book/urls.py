@@ -1,6 +1,6 @@
-from app_book.controller import get_authors, new_quote, get_author, get_quotes, get_quote, delete_quote
 from ICECREAM.baseapp import BaseApp
 from ICECREAM.wrappers import pass_data, db_handler
+from app_book.controller import get_authors, new_quote, get_author, get_quotes, get_quote, delete_quote
 
 
 class BookApp(BaseApp):

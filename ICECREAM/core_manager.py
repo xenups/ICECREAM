@@ -1,4 +1,3 @@
-import getopt
 import os
 import sys
 from pydoc import locate
@@ -49,8 +48,8 @@ class CommandsParser(object):
 
 class CommandManager(object):
 
-    def __init__(self, commands):
-        self.command = CommandsParser(commands)
+    def __init__(self, opt_commands):
+        self.command = CommandsParser(opt_commands)
 
     def execute(self):
         if self.command.has_command():

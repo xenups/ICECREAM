@@ -1,6 +1,5 @@
-import getopt
 import sys
-
+import getopt
 from ICECREAM.core_manager import CommandManager
 
 

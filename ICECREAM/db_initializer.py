@@ -9,6 +9,13 @@ from settings import database
 Base = declarative_base()
 
 
+def get_database_uri():
+    uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
+                                                      database['db_host'], database['db_port'],
+                                                      database['db_name'])
+    return uri
+
+
 # using singleton pattern to create engine once
 class DBConnector(object):
     def __new__(cls):
@@ -17,22 +24,20 @@ class DBConnector(object):
         return cls.instance
 
     def __init__(self):
-        self.engine = create_engine(self.get_database_uri())
+        print('db is initlizing')
+        self.engine = create_engine(get_database_uri())
         self.Session = sessionmaker(bind=self.engine)
         self.db_session = self.Session()
         self.Session.configure(bind=self.engine)
-
-    def get_database_uri(self):
-        uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
-                                                          database['db_host'], database['db_port'],
-                                                          database['db_name'])
-        return uri
+        print('db is initlizing finished')
 
 
 def get_db_session():
     if hasattr(request, 'db_session'):
+        print('it has session')
         return request.db_session
     else:
+        print('session created again')
         db = DBConnector()
         request.db_session = db.db_session
         return request.db_session

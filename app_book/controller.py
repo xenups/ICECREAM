@@ -1,19 +1,9 @@
-from bottle import request, HTTPError, HTTPResponse
 from marshmallow import ValidationError
-from sqlalchemy.exc import IntegrityError
-
-from sqlalchemy.orm.exc import NoResultFound
 from app_book.models import Author, Quote
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
+from bottle import request, HTTPError, HTTPResponse
 from app_book.schemas import AuthorSchema, quote_serializer, author_serializer, quotes_serializer
-
-
-# connection_string = "postgresql://xenups:Qweasd1368@localhost/test"
-# engine = create_engine(connection_string)
-# Session = sessionmaker()
-# Session.configure(bind=engine)
-# Base.metadata.drop_all(engine)
-# Base.metadata.create_all(engine)
-# session = Session()
 
 
 def get_authors(db_session):
