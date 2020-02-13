@@ -116,3 +116,4 @@ media/
 /alembic/README
 /alembic/script.py.mako
 /alembic/versions/
+/venv/
