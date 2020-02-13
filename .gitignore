@@ -111,3 +111,8 @@ media/
 !**/migrations
 !**/migrations/__init__.py
 .idea/
+/alembic.ini
+/venv/
+/alembic/README
+/alembic/script.py.mako
+/alembic/versions/
