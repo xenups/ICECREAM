@@ -9,27 +9,37 @@ from settings import database
 Base = declarative_base()
 
 
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class BaseDBConnector:
+    def __init__(self):
+        try:
+            print('db is initlizing')
+            self.engine = create_engine(get_database_uri())
+            self.Session = sessionmaker(bind=self.engine)
+            self.db_session = self.Session()
+            self.Session.configure(bind=self.engine)
+            print('db is initlizing finished')
+        except Exception as error:
+            print(error)
+
+
+class DBConnector(BaseDBConnector, metaclass=Singleton):
+    pass
+
+
 def get_database_uri():
     uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
                                                       database['db_host'], database['db_port'],
                                                       database['db_name'])
     return uri
-
-
-# using singleton pattern to create engine once
-class DBConnector(object):
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(DBConnector, cls).__new__(cls)
-        return cls.instance
-
-    def __init__(self):
-        print('db is initlizing')
-        self.engine = create_engine(get_database_uri())
-        self.Session = sessionmaker(bind=self.engine)
-        self.db_session = self.Session()
-        self.Session.configure(bind=self.engine)
-        print('db is initlizing finished')
 
 
 def get_db_session():
