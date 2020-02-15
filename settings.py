@@ -1,10 +1,9 @@
 # icecream framework settings
 import os
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-project_directory = os.getcwd()
-load_dotenv(os.path.join(project_directory, '.env'))
+load_dotenv(find_dotenv())
 
 apps = [
     'app_book.urls.BookApp',
