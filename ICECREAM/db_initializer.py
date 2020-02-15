@@ -21,12 +21,10 @@ class Singleton(type):
 class BaseDBConnector:
     def __init__(self):
         try:
-            print('db is initlizing')
             self.engine = create_engine(get_database_uri())
             self.Session = sessionmaker(bind=self.engine)
             self.db_session = self.Session()
             self.Session.configure(bind=self.engine)
-            print('db is initlizing finished')
         except Exception as error:
             print(error)
 
