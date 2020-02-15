@@ -8,6 +8,7 @@ load_dotenv(find_dotenv())
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
+    'app_user.urls.USERApp'
 ]
 default_address = {
     'host': os.getenv('host'),
