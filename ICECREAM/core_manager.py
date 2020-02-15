@@ -89,14 +89,16 @@ class Core(object):
     def execute_wsgi(self):
         return self.core
 
-    def execute_runserver(self, address):
-        __address = self.__convert_command_to_address(address)
-        run(self.core, host=__address['host'], port=__address['port'])
-        return self.core
+    def execute_runserver(self, address=None):
+        try:
+            __address = self.__convert_command_to_address(address)
+            run(self.core, host=__address['host'], port=__address['port'])
+            return self.core
+        except Exception as err:
+            print(err)
 
     @staticmethod
     def __convert_command_to_address(argv):
-        """convert command to address"""
         try:
             _address = get_default_address()
             if argv is not None:
@@ -109,7 +111,6 @@ class Core(object):
 
     @staticmethod
     def __initialize_baseapps():
-        """subclasses populate from settings route"""
         try:
             for app in apps:
                 baseapp_class = locate(app)
@@ -118,13 +119,11 @@ class Core(object):
             raise ValueError("undefined app")
 
     def __get_subclasses(self, cls):
-        """all of inherited classes from base app populate"""
         for subclass in cls.__subclasses__():
             yield from self.__get_subclasses(subclass)
             yield subclass
 
     def __register_routers(self, core):
-        """pass bottle core to subclasses"""
         self.__initialize_baseapps()
         base_app_subclasses = self.__get_subclasses(BaseApp)
         for sub_class in base_app_subclasses:
