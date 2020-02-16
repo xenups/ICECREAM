@@ -34,7 +34,6 @@ def load_all(module_name):
 target_metadata = Base.metadata
 
 load_all('models')
-
 config.set_main_option('sqlalchemy.url', get_database_uri())
 fileConfig(config.config_file_name)
 

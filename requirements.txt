@@ -1,6 +1,7 @@
 alembic==1.4.0
 attrs==19.3.0
 bottle==0.12.18
+bottle-jwt==0.11
 certifi==2019.11.28
 chardet==3.0.4
 elasticsearch==7.5.1
@@ -14,6 +15,7 @@ MarkupSafe==1.1.1
 marshmallow==3.4.0
 mongosql==2.0.10.post1
 psycopg2-binary==2.8.4
+PyJWT==1.7.1
 pyrsistent==0.15.7
 python-dateutil==2.8.1
 python-dotenv==0.11.0

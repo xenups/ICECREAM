@@ -22,3 +22,5 @@ database = {
     'db_port': os.getenv('db_port'),
     'db_name': os.getenv('db_name')
 }
+project_secret = os.getenv('project_secret')
+jwt_ttl = os.getenv('jwt_ttl')

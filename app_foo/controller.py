@@ -1,10 +1,12 @@
 "ICECREAM"
 from bottle import HTTPResponse, HTTPError
+from bottle_jwt import jwt_auth_required
 from marshmallow import Schema, fields, ValidationError
 from app_foo.models import Room
 from app_foo.schemas import RoomSchema, room_serializer
 
 
+@jwt_auth_required
 def get_rooms(db_session):
     try:
         rooms = db_session.query(Room).all()
