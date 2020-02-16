@@ -3,6 +3,7 @@ import sys
 from pydoc import locate
 from bottle import Bottle, run
 from ICECREAM.baseapp import BaseApp
+from app_user.authentication import jwt_plugin
 from settings import default_address, apps
 
 
@@ -83,8 +84,13 @@ class CommandManager(object):
 
 class Core(object):
     def __init__(self, ):
-        self.core = Bottle()
-        self.__register_routers(self.core)
+        try:
+            self.core = Bottle()
+            self.core.install(jwt_plugin)
+            self.__register_routers(self.core)
+        except Exception as e:
+            sys.stdout.write('core cannot initialize')
+            raise ValueError(e)
 
     def execute_wsgi(self):
         return self.core
