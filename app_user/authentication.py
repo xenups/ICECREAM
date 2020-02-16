@@ -34,5 +34,5 @@ jwt_plugin = JWTProviderPlugin(
     backend=AuthBackend(),
     fields=('username', 'password'),
     secret=project_secret,
-    ttl=jwt_ttl
+    ttl=int(jwt_ttl)
 )
