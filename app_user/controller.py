@@ -12,7 +12,6 @@ from app_user.schemas import UserSchema, user_serializer, users_serializer
 def get_users(db_session):
     try:
         user = db_session.query(User).all()
-        print(user)
         user = users_serializer.dump(user)
         return HTTPResponse(status=200, body={'users': user})
     except NoResultFound as e:
@@ -37,6 +36,7 @@ def new_user(db_session, data):
         db_session.add(person)
 
         user = get_or_create(User, db_session, username=username)
+
         user.username = username
         user.set_password(data['password'])
         user.person = person
