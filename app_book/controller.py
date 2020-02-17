@@ -1,4 +1,6 @@
 from marshmallow import ValidationError
+
+from ICECREAM.models.query import get_or_create
 from app_book.models import Author, Quote
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
@@ -11,7 +13,7 @@ def get_authors(db_session):
         authors = db_session.query(Author).all()
         serializer = AuthorSchema(many=True)
         result = serializer.dump(authors)
-        return HTTPResponse(status=200, body={'result': result})
+        return result
     except Exception as e:
         raise HTTPError(status=400, body={'error': e.args.__str__()})
 
@@ -23,7 +25,7 @@ def new_quote(db_session, data):
         first = author['first']
         last = author['last']
         content = data['content']
-        author = db_session.query(Author).filter_by(first=first, last=last).first()
+        author = get_or_create(Author, db_session, first=first, last=last)
         if author is None:
             author = Author(first, last)
             db_session.add(author)
@@ -31,9 +33,8 @@ def new_quote(db_session, data):
         db_session.add(quote)
         db_session.commit()
         result = quote_serializer.dump(db_session.query(Quote).get(quote.id))
-        return HTTPResponse(status=200, body={'result': result})
+        return result
     except ValidationError as err:
-        print(err.messages)
         return err.messages
 
 
@@ -43,7 +44,8 @@ def get_author(pk, db_session):
         if author is not None:
             author_result = author_serializer.dump(author)
             quotes_result = quotes_serializer.dump(author.quotes.all())
-            return HTTPResponse(status=200, body={'quotes': quotes_result, 'author': author_result})
+            author_result.update({"quotes": quotes_result})
+            return author_result
         else:
             raise HTTPError(status=404, body='Not found {0}'.format(pk))
     except NoResultFound as e:
@@ -53,7 +55,7 @@ def get_author(pk, db_session):
 def get_quotes(db_session):
     quotes = db_session.query(Quote).all()
     result = quotes_serializer.dump(quotes)
-    return HTTPResponse(status=200, body={'quote': result})
+    return result
 
 
 def get_quote(pk, db_session):
@@ -63,7 +65,7 @@ def get_quote(pk, db_session):
         raise HTTPError(status=404, body='Not found {0}'.format(pk))
     result = quote_serializer.dump(quote)
     if quote is not None:
-        return HTTPResponse(status=200, body={'quote': result})
+        return result
 
 
 def delete_quote(pk, db_session):
