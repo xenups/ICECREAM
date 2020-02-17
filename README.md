@@ -1,4 +1,6 @@
-###  **ICE CREAM Instructions**
+#  **ICE CREAM Instructions**
+ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project. every controller has access to each to reduce complex business logic.
+
 
 **To run bottle builtin server with commands:**
     
@@ -13,10 +15,13 @@
 **to create new app:**
 
     python manage.py startapp app_name
-    {app must inherit from BaseApp like samples}
     then register app in settings.py
 
-**Migration Commands:**
+#### **Migration Commands:**
+**To initialize migration:**
+
+    alembic init alembic
+after intializing alembic config the env.py in alembic folder  like env.py file exist into the  project
 
 **To make migration:**
 
