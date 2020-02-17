@@ -7,7 +7,7 @@
 
 **To bind icecream to gunicorn:**
     
-    gunicorn --workers=2  'wsgi:wsgi_app()'
+    gunicorn --workers=2  'manage:wsgi_app()'
     
 
 **to create new app:**
