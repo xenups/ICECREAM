@@ -1,6 +1,6 @@
 "ICECREAM"
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Numeric, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Numeric, Table, Date
+from sqlalchemy.orm import relationship, backref
 
 from ICECREAM.db_initializer import Base
 
@@ -78,5 +78,6 @@ class Student(Base):
 class Class(Base):
     __tablename__ = 'classes'
     id = Column(Integer, primary_key=True)
+    students = relationship("Student", secondary=students_classes_association)
 
 #########  many to many ############
