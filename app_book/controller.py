@@ -13,25 +13,31 @@ def get_authors(db_session):
         authors = db_session.query(Author).all()
         serializer = AuthorSchema(many=True)
         result = serializer.dump(authors)
-        return result
+        return authors
     except Exception as e:
         raise HTTPError(status=400, body={'error': e.args.__str__()})
 
 
-def new_quote(db_session, data):
+def new_quote(data, db_session):
     try:
         quote_serializer.load(data)
         author = data['author']
+
         first = author['first']
         last = author['last']
+
         content = data['content']
+
         author = get_or_create(Author, db_session, first=first, last=last)
+
         if author is None:
             author = Author(first, last)
             db_session.add(author)
         quote = Quote(content, author)
+
         db_session.add(quote)
         db_session.commit()
+
         result = quote_serializer.dump(db_session.query(Quote).get(quote.id))
         return result
     except ValidationError as err:
@@ -55,7 +61,7 @@ def get_author(pk, db_session):
 def get_quotes(db_session):
     quotes = db_session.query(Quote).all()
     result = quotes_serializer.dump(quotes)
-    return result
+    return quotes
 
 
 def get_quote(pk, db_session):
@@ -65,7 +71,7 @@ def get_quote(pk, db_session):
         raise HTTPError(status=404, body='Not found {0}'.format(pk))
     result = quote_serializer.dump(quote)
     if quote is not None:
-        return result
+        return quote
 
 
 def delete_quote(pk, db_session):
