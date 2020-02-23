@@ -5,7 +5,7 @@ from app_book.controller import get_authors, new_quote, get_author, get_quotes, 
 
 class BookApp(BaseApp):
     def call_router(self, core):
-        core.route('/getallbooks', 'GET', get_authors, apply=[db_handler, jsonify])
+        core.route('/getauthors', 'GET', get_authors, apply=[db_handler, jsonify])
         core.route('/addquote', 'POST', new_quote, apply=[pass_data, db_handler, jsonify])
         core.route('/getauthor/<pk>', 'GET', get_author, apply=[db_handler, jsonify])
         core.route('/getquotes', 'GET', get_quotes, apply=[db_handler, jsonify])

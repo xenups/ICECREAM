@@ -1,10 +1,12 @@
 import os
 import sys
+import sentry_sdk
 from pydoc import locate
 from bottle import Bottle, run
 from ICECREAM.baseapp import BaseApp
 from app_user.authentication import jwt_plugin
-from settings import default_address, apps
+from settings import default_address, apps, sentry_dsn
+from sentry_sdk.integrations.bottle import BottleIntegration
 
 
 def get_default_address():
@@ -36,7 +38,7 @@ class CommandsParser(object):
                 self.subcommands.append(str(command))
         return self.subcommands
 
-    def has_command(self) -> bool:
+    def has_value(self) -> bool:
         if not self.opt_commands:
             return True
         return False
@@ -53,9 +55,10 @@ class CommandManager(object):
         self.command = CommandsParser(opt_commands)
 
     def execute(self):
-        if self.command.has_command():
+        if self.command.has_value():
             core = Core()
             return core.execute_wsgi()
+
         if self.command.get_command() == 'startapp':
             if self.command.has_subcommand():
                 self.create_app(self.command.get_subcommand()[0])
@@ -86,6 +89,10 @@ class Core(object):
     def __init__(self, ):
         try:
             self.core = Bottle()
+            sentry_sdk.init(
+                dsn=sentry_dsn,
+                integrations=[BottleIntegration()]
+            )
             self.core.install(jwt_plugin)
             self.__register_routers(self.core)
         except Exception as e:
