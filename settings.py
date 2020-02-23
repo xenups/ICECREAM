@@ -8,7 +8,8 @@ load_dotenv(find_dotenv())
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
-    'app_user.urls.USERApp'
+    'app_tutorial.urls.ClassApp',
+    # 'app_user.urls.USERApp'
 ]
 default_address = {
     'host': os.getenv('host'),
@@ -24,3 +25,4 @@ database = {
 }
 project_secret = os.getenv('project_secret')
 jwt_ttl = os.getenv('jwt_ttl')
+sentry_dsn = os.getenv('sentry_dsn')
