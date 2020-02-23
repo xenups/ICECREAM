@@ -36,7 +36,7 @@ class CommandsParser(object):
                 self.subcommands.append(str(command))
         return self.subcommands
 
-    def has_command(self) -> bool:
+    def has_value(self) -> bool:
         if not self.opt_commands:
             return True
         return False
@@ -53,9 +53,10 @@ class CommandManager(object):
         self.command = CommandsParser(opt_commands)
 
     def execute(self):
-        if self.command.has_command():
+        if self.command.has_value():
             core = Core()
             return core.execute_wsgi()
+
         if self.command.get_command() == 'startapp':
             if self.command.has_subcommand():
                 self.create_app(self.command.get_subcommand()[0])
