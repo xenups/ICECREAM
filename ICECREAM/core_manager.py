@@ -1,10 +1,12 @@
 import os
 import sys
+import sentry_sdk
 from pydoc import locate
 from bottle import Bottle, run
 from ICECREAM.baseapp import BaseApp
 from app_user.authentication import jwt_plugin
-from settings import default_address, apps
+from settings import default_address, apps, sentry_dsn
+from sentry_sdk.integrations.bottle import BottleIntegration
 
 
 def get_default_address():
@@ -87,6 +89,10 @@ class Core(object):
     def __init__(self, ):
         try:
             self.core = Bottle()
+            sentry_sdk.init(
+                dsn=sentry_dsn,
+                integrations=[BottleIntegration()]
+            )
             self.core.install(jwt_plugin)
             self.__register_routers(self.core)
         except Exception as e:
