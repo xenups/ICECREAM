@@ -1,8 +1,11 @@
 import os
 import sys
+import logging
 import sentry_sdk
 from pydoc import locate
 from bottle import Bottle, run
+from sentry_sdk.integrations.logging import LoggingIntegration
+
 from ICECREAM.baseapp import BaseApp
 from app_user.authentication import jwt_plugin
 from settings import default_address, apps, sentry_dsn
@@ -89,11 +92,8 @@ class Core(object):
     def __init__(self, ):
         try:
             self.core = Bottle()
-            sentry_sdk.init(
-                dsn=sentry_dsn,
-                integrations=[BottleIntegration()]
-            )
             self.core.install(jwt_plugin)
+            self.__initialize_log()
             self.__register_routers(self.core)
         except Exception as e:
             sys.stdout.write('core cannot initialize')
@@ -121,6 +121,16 @@ class Core(object):
         except Exception as e:
             raise ValueError('ICECREAM: Please provide a valid address')
         return _address
+
+    def __initialize_log(self):
+        sentry_logging = LoggingIntegration(
+            level=logging.INFO,  # Capture info and above as breadcrumbs
+            event_level=logging.ERROR  # Send errors as events
+        )
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            integrations=[BottleIntegration(), sentry_logging]
+        )
 
     @staticmethod
     def __initialize_baseapps():
