@@ -6,16 +6,9 @@ from sqlalchemy.util.compat import contextmanager
 
 from settings import database
 
+from .util import Singleton
+
 Base = declarative_base()
-
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 class BaseDBConnector:
