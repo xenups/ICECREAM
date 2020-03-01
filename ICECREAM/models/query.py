@@ -9,14 +9,14 @@ def get_or_create(model, session, **kwargs):
         model_object = session.query(model).filter_by(**kwargs).first()
         if model_object is not None:
             return model_object
-        model_object = model()
+        model_object = model(**kwargs)
         return model_object
 
     except Exception as e:  # or whatever error/exception it is on SQLA
         model_object = model()
         print("exception is happened")
         # do it here if you want to save the obj to the db
-        return model_object
+        return None
 
 
 def get(model, session, **kwargs):
