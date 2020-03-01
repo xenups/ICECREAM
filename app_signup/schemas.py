@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 
 class SMSSchema(Schema):
     class Meta:
-        fields = ('cell_no',)
+        fields = ('cell_number',)
 
 
-room_serializer = SMSSchema()
+SMS_serializer = SMSSchema()
