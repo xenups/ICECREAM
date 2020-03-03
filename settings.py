@@ -1,10 +1,12 @@
 # icecream framework settings
 import os
-
+import rootpath
 from dotenv import load_dotenv, find_dotenv
 
+rootpath.append()
 load_dotenv(find_dotenv())
-
+project_root = rootpath.detect()
+media_files = project_root + os.getenv('media_files')
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',

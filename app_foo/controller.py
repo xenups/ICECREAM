@@ -1,14 +1,13 @@
 "ICECREAM"
 import logging
-import sys
+from bottle import HTTPError
+from ICECREAM.file_handler import upload
+from app_foo.models import Room, RoomImage
+from app_foo.schemas import RoomSchema, room_serializer, room_image_serializer
 
-from bottle import HTTPResponse, HTTPError
-from bottle_jwt import jwt_auth_required
-from marshmallow import Schema, fields, ValidationError
 
-from ICECREAM.wrappers import model_to_dict
-from app_foo.models import Room
-from app_foo.schemas import RoomSchema, room_serializer
+# from bottle_jwt import jwt_auth_required
+# from ICECREAM.wrappers import model_to_dict
 
 
 def get_rooms(db_session):
@@ -22,11 +21,10 @@ def get_rooms(db_session):
 
 
 def new_room(db_session, data):
+    validation_errors = room_serializer.validate(data=data)
+    if validation_errors:
+        return validation_errors
     try:
-        try:
-            room_serializer.load(data)
-        except ValidationError as err:
-            return err.messages
         room = Room()
         room.name = data['name']
         db_session.add(room)
@@ -36,3 +34,19 @@ def new_room(db_session, data):
         return result
     except Exception as err:
         raise err
+
+
+def add_room_image(db_session, data):
+    validation_errors = room_image_serializer.validate(data=data)
+    if validation_errors:
+        return validation_errors
+    room_image = RoomImage()
+    room_image.name = upload(data=data)
+    room_image.room_id = data['room_id']
+    db_session.add(room_image)
+    db_session.commit()
+
+    result = db_session.query(RoomImage).get(room_image.id)
+    dumped_result = room_image_serializer.dump(result)
+
+    return dumped_result
