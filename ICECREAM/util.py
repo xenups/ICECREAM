@@ -18,3 +18,8 @@ def generate_otp_code():
 
 def strip_path():
     request.environ['PATH_INFO'] = request.environ['PATH_INFO'].rstrip('/')
+
+
+def get_media_link(file_name):
+    host = request.get_header('host')
+    return 'http://{}/media/{}'.format(host, file_name)
