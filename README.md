@@ -33,4 +33,11 @@ after intializing alembic config the env.py in alembic folder  like env.py file 
     alembic upgrade head
 
 
- 
+ #### **File serving:**
+**To serving files first  need to create a static folder in root of project:**
+
+     Create a folder like :
+    /statics/media/
+**After that register the address in the .env:**
+
+    media_files = /statics/media/
