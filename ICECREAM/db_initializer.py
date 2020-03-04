@@ -1,12 +1,10 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from bottle import request
-from sqlalchemy.util.compat import contextmanager
-
-from settings import database
-
 from .util import Singleton
+from settings import database
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.util.compat import contextmanager
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
@@ -27,18 +25,16 @@ class DBConnector(BaseDBConnector, metaclass=Singleton):
 
 
 def get_database_uri():
-    uri = 'postgres+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
-                                                      database['db_host'], database['db_port'],
-                                                      database['db_name'])
+    uri = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
+                                                        database['db_host'], database['db_port'],
+                                                        database['db_name'])
     return uri
 
 
 def get_db_session():
     if hasattr(request, 'db_session'):
-        print('it has session')
         return request.db_session
     else:
-        print('session created again')
         db = DBConnector()
         request.db_session = db.db_session
         return request.db_session
