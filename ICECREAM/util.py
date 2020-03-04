@@ -1,5 +1,7 @@
 import secrets
 
+from bottle import request
+
 
 class Singleton(type):
     _instances = {}
@@ -12,3 +14,7 @@ class Singleton(type):
 
 def generate_otp_code():
     return secrets.SystemRandom().randrange(999, 9999)
+
+
+def strip_path():
+    request.environ['PATH_INFO'] = request.environ['PATH_INFO'].rstrip('/')

@@ -7,6 +7,7 @@ rootpath.append()
 load_dotenv(find_dotenv())
 project_root = rootpath.detect()
 media_files = project_root + os.getenv('media_files')
+DEBUG = True
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',

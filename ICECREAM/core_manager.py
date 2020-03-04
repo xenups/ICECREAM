@@ -1,12 +1,14 @@
 import os
 import sys
+import pathlib
 import logging
 import sentry_sdk
 from pydoc import locate
-from bottle import Bottle, run
+from .util import strip_path
 from ICECREAM.baseapp import BaseApp
 from app_user.authentication import jwt_plugin
-from settings import default_address, apps, sentry_dsn
+from bottle import Bottle, run, static_file, BaseTemplate
+from settings import default_address, apps, sentry_dsn, DEBUG
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -16,6 +18,7 @@ def get_default_address():
     return _default
 
 
+ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
 commands_list = ['startapp', 'runserver', 'wsgi']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
@@ -91,12 +94,31 @@ class Core(object):
     def __init__(self, ):
         try:
             self.core = Bottle()
+            BaseTemplate.defaults['get_url'] = self.core.get_url
             self.core.install(jwt_plugin)
+            self._route_homepage()
             self.__initialize_log()
-            self.__register_routers(self.core)
+            self.__register_routers()
         except Exception as e:
             sys.stdout.write('core cannot initialize')
             raise ValueError(e)
+
+    def _route_homepage(self, ):
+        self.core.hook('before_request')(strip_path)
+        self.core.route('/static/<filepath:path>', callback=self.server_static)
+        if DEBUG:
+            self.core.route('/',
+                            callback=self._serve_homepage_file)
+
+    @staticmethod
+    def _serve_homepage_file():
+        __homepage_file = static_file("index.html",
+                                      root=ICECREAM_PATH + '/statics/templates')
+        return __homepage_file
+
+    @staticmethod
+    def server_static(filepath):
+        return static_file(filepath, root=ICECREAM_PATH + '/statics/images/')
 
     def execute_wsgi(self):
         try:
@@ -107,7 +129,7 @@ class Core(object):
     def execute_runserver(self, address=None):
         try:
             __address = self.__convert_command_to_address(address)
-            run(self.core, host=__address['host'], port=__address['port'])
+            run(self.core, host=__address['host'], port=__address['port'], debug=DEBUG)
             return self.core
         except Exception as err:
             sys.stdout.write('execute runserver has problem')
@@ -150,8 +172,8 @@ class Core(object):
             yield from self.__get_subclasses(subclass)
             yield subclass
 
-    def __register_routers(self, core):
+    def __register_routers(self):
         self.__initialize_baseapps()
         base_app_subclasses = self.__get_subclasses(BaseApp)
         for sub_class in base_app_subclasses:
-            sub_class.call_router(sub_class, core=core)
+            sub_class.call_router(sub_class, core=self.core)

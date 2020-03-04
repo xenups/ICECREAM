@@ -1,0 +1,163 @@
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>
+    </title>
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style class="custom-css">
+        #wrap {
+            min-height: 100%;
+            height: auto;
+            /* Negative indent footer by its height */
+            margin: 0 auto -60px;
+            /* Pad bottom by footer height */
+            padding: 0 0 60px;
+        }
+
+        #footer {
+            font-size: 18px;
+            bottom: 0;
+            padding-top: 20px;
+            height: 60px;
+            position: fixed;
+            width: 100%;
+            background-color: #DBDBDB;
+
+        }
+
+        #jumbo {
+            background-color: #DBDBDB;
+            color: #3F3F3F;
+            min-height: 290px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        #jumbo p {
+            font-size: 18px;
+        }
+
+        #jumbo h1 {
+            font-size: 25px;
+        }
+
+        @media (min-width: 650px) {
+            #jumbo h1 {
+                font-size: 30px;
+            }
+        }
+
+        @media (min-width: 740px) {
+            #jumbo h1 {
+                font-size: 35px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #jumbo h1 {
+                font-size: 50px;
+            }
+        }
+
+        @media (min-width: 1220px) {
+            #jumbo h1 {
+                font-size: 60px;
+            }
+        }
+
+        .panel-heading a:after {
+            font-family: 'Glyphicons Halflings';
+            content: "\e114";
+            float: right;
+            color: grey;
+        }
+
+        .panel-heading a.collapsed:after {
+            content: "\e080";
+        }
+
+        .container a {
+            text-decoration: None;
+        }
+
+    </style>
+</head>
+<body>
+<!-- Wrap all page content here -->
+<div id="wrap">
+
+    <div id="jumbo" class="jumbotron">
+        <div class="container">
+            <div style="text-align: center;">
+                <h3>
+                    <br>
+                    <img src="/static/ice.png" alt="ICECREAM Logo" width="125" height="125">
+                    <br>
+                </h3>
+            </div>
+            <p>
+            <div style="text-align: center;">
+                <h3>
+                    <b>icecream is working perfect !</b>
+                </h3>
+            </div>
+            </p>
+            <br>
+
+        </div>
+    </div>
+
+    <!--main-->
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <h5>
+                <div style="text-align: center;">
+                    <b>if you want to disappear this page set <span style="color: forestgreen; ">DEBUG=FALSE !</span>
+                    </b>
+                </div>
+            </h5>
+            <div class="panel panel-default" id="panel1">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-target="#collapseOne" href="#">Testing the API.</a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <b>Request : http://{ip-address}:{port}/api : Get or Post Requests Accepted</b></br>
+                        <hr>
+                        The <b>API output is a JSON-file</b> formated as following:<br><br>
+
+                        <div>
+                            <pre id="json">{"status": "Success"}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--/container-->
+</div><!-- Wrap Div end -->
+
+<div id="footer">
+    <div class="container">
+        <p class="muted credit">Developed by <a href="https://xenups.github.io/portfolio/">Amir Lesani</a></p>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script>
+
+    var jsonStr = $("#json").text();
+    var jsonObj = JSON.parse(jsonStr);
+    var jsonPretty = JSON.stringify(jsonObj, null, '\t');
+    $("#json").text(jsonPretty);
+
+</script>
+</body>
+</html>
