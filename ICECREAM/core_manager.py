@@ -8,7 +8,7 @@ from .util import strip_path
 from ICECREAM.baseapp import BaseApp
 from app_user.authentication import jwt_plugin
 from bottle import Bottle, run, static_file, BaseTemplate
-from settings import default_address, apps, sentry_dsn, DEBUG
+from settings import default_address, apps, sentry_dsn, DEBUG, media_path
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -96,19 +96,24 @@ class Core(object):
             self.core = Bottle()
             BaseTemplate.defaults['get_url'] = self.core.get_url
             self.core.install(jwt_plugin)
-            self._route_homepage()
+            self.__route_homepage()
+            self.__route_file_server()
             self.__initialize_log()
             self.__register_routers()
         except Exception as e:
             sys.stdout.write('core cannot initialize')
             raise ValueError(e)
 
-    def _route_homepage(self, ):
+    def __route_homepage(self, ):
         self.core.hook('before_request')(strip_path)
-        self.core.route('/static/<filepath:path>', callback=self.server_static)
+        self.core.route('/icecream/static/<filepath:path>', callback=self.server_static)
         if DEBUG:
             self.core.route('/',
                             callback=self._serve_homepage_file)
+
+    def __route_file_server(self):
+        self.core.hook('before_request')(strip_path)
+        self.core.route('/media/<filepath:path>', callback=self.serve_static_media)
 
     @staticmethod
     def _serve_homepage_file():
@@ -119,6 +124,10 @@ class Core(object):
     @staticmethod
     def server_static(filepath):
         return static_file(filepath, root=ICECREAM_PATH + '/statics/images/')
+
+    @staticmethod
+    def serve_static_media(filepath):
+        return static_file(filepath, root=media_path)
 
     def execute_wsgi(self):
         try:
