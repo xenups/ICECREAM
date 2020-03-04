@@ -14,7 +14,8 @@ def get_rooms(db_session):
     try:
         rooms = db_session.query(Room).all()
         serializer = RoomSchema(many=True)
-        return rooms
+        result = serializer.dump(rooms)
+        return result
     except Exception as e:
         logging.error(e)
         raise HTTPError(status=400, body={'error': e.args.__str__()})
