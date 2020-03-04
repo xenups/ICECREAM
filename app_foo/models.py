@@ -9,6 +9,7 @@ class Room(Base):
     __tablename__ = 'room'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    room_images = relationship("RoomImage", back_populates="room")
 
 
 class RoomImage(Base):
