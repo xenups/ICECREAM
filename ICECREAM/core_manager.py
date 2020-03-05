@@ -2,6 +2,7 @@ import os
 import sys
 import pathlib
 import logging
+import rootpath
 import sentry_sdk
 from pydoc import locate
 from .util import strip_path
@@ -18,6 +19,7 @@ def get_default_address():
     return _default
 
 
+rootpath.append()
 ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
 commands_list = ['startapp', 'runserver', 'wsgi']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
@@ -130,6 +132,12 @@ class Core(object):
         return static_file(filepath, root=media_path)
 
     def execute_wsgi(self):
+        try:
+            return self.core
+        except Exception:
+            raise
+
+    def execute_test_server(self):
         try:
             return self.core
         except Exception:
