@@ -6,8 +6,8 @@ from app_foo.models import Room, RoomImage
 from app_foo.schemas import RoomSchema, room_serializer, room_image_serializer
 
 
-# from bottle_jwt import jwt_auth_required
-# from ICECREAM.wrappers import model_to_dict
+def hello():
+    return {"result": 'hellow world'}
 
 
 def get_rooms(db_session):
