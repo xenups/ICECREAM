@@ -13,7 +13,7 @@ class APIResponse(object):
 
 class Client(object):
     def __init__(self):
-        self.test_core = TestApp(Core().execute_test_server())
+        self.test_core = TestApp(Core().execute_wsgi())
 
     def get_api(self, api_url):
         response = APIResponse()
