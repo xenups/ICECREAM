@@ -108,7 +108,9 @@ class Core(object):
 
     def __route_homepage(self, ):
         if DEBUG:
+            self.core.hook('before_request')(strip_path)
             self.core.route('/', callback=self._serve_homepage_template)
+            self.core.route('/icecream/static/<filepath:path>', callback=self.server_homepage_static)
 
     def __route_file_server(self):
         self.core.hook('before_request')(strip_path)
@@ -121,7 +123,7 @@ class Core(object):
         return __homepage_file
 
     @staticmethod
-    def server_static(filepath):
+    def server_homepage_static(filepath):
         return static_file(filepath, root=ICECREAM_PATH + '/statics/images/')
 
     @staticmethod
