@@ -107,18 +107,15 @@ class Core(object):
             raise ValueError(e)
 
     def __route_homepage(self, ):
-        self.core.hook('before_request')(strip_path)
-        self.core.route('/icecream/static/<filepath:path>', callback=self.server_static)
         if DEBUG:
-            self.core.route('/',
-                            callback=self._serve_homepage_file)
+            self.core.route('/', callback=self._serve_homepage_template)
 
     def __route_file_server(self):
         self.core.hook('before_request')(strip_path)
-        self.core.route('/media/<filepath:path>', callback=self.serve_static_media)
+        self.core.route('/media/<filepath:path>', callback=self.__serve_static_media)
 
     @staticmethod
-    def _serve_homepage_file():
+    def _serve_homepage_template():
         __homepage_file = static_file("index.html",
                                       root=ICECREAM_PATH + '/statics/templates')
         return __homepage_file
@@ -128,16 +125,10 @@ class Core(object):
         return static_file(filepath, root=ICECREAM_PATH + '/statics/images/')
 
     @staticmethod
-    def serve_static_media(filepath):
+    def __serve_static_media(filepath):
         return static_file(filepath, root=media_path)
 
     def execute_wsgi(self):
-        try:
-            return self.core
-        except Exception:
-            raise
-
-    def execute_test_server(self):
         try:
             return self.core
         except Exception:
