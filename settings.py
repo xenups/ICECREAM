@@ -8,7 +8,7 @@ load_dotenv(find_dotenv())
 project_root = rootpath.detect()
 media_path = project_root + os.getenv('media_files')
 # you can using instead of os.getenv  media_files = /statics/media/
-DEBUG = True
+DEBUG: bool = True
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
