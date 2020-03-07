@@ -3,15 +3,12 @@ import os
 import rootpath
 from dotenv import load_dotenv, find_dotenv
 
-from app_user.authentication import AuthBackend
-
 rootpath.append()
 load_dotenv(find_dotenv())
 project_root = rootpath.detect()
 media_path = project_root + os.getenv('media_files')
 # you can using instead of os.getenv  media_files = /statics/media/
 DEBUG: bool = True
-authentication = AuthBackend()
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
