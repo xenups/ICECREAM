@@ -7,7 +7,7 @@ import sentry_sdk
 from pydoc import locate
 from .util import strip_path
 from ICECREAM.baseapp import BaseApp
-from app_user.authentication import jwt_plugin
+from authentication import jwt_plugin
 from bottle import Bottle, run, static_file, BaseTemplate
 from settings import default_address, apps, sentry_dsn, DEBUG, media_path
 from sentry_sdk.integrations.bottle import BottleIntegration
@@ -97,14 +97,20 @@ class Core(object):
         try:
             self.core = Bottle()
             BaseTemplate.defaults['get_url'] = self.core.get_url
-            self.core.install(jwt_plugin)
             self.__route_homepage()
+            self.__init_jwt()
             self.__route_file_server()
             self.__initialize_log()
             self.__register_routers()
         except Exception as e:
             sys.stdout.write('core cannot initialize')
             raise ValueError(e)
+
+    def __init_jwt(self):
+        if jwt_plugin.auth_endpoint:
+            self.core.install(jwt_plugin)
+            return True
+        return False
 
     def __route_homepage(self, ):
         if DEBUG:
@@ -173,7 +179,8 @@ class Core(object):
         try:
             for app in apps:
                 baseapp_class = locate(app)
-                instance = baseapp_class()
+                if baseapp_class:
+                    instance = baseapp_class()
         except Exception as exception:
             raise ValueError("undefined app")
 
