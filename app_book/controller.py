@@ -13,7 +13,7 @@ def get_authors(db_session):
         authors = db_session.query(Author).all()
         serializer = AuthorSchema(many=True)
         result = serializer.dump(authors)
-        return authors
+        return result
     except Exception as e:
         raise HTTPError(status=400, body={'error': e.args.__str__()})
 
@@ -61,7 +61,7 @@ def get_author(pk, db_session):
 def get_quotes(db_session):
     quotes = db_session.query(Quote).all()
     result = quotes_serializer.dump(quotes)
-    return quotes
+    return result
 
 
 def get_quote(pk, db_session):

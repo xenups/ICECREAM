@@ -13,8 +13,13 @@ from settings import sms
 sms_api_key = sms['sms_api_key']
 
 
-def send_message(data):
-    receptor = data.get('receptor')
+def send_message(cell_number, activation_code):
+    data = {'receptor': cell_number,
+            'token': activation_code,
+            'type': 'sms',
+            'template': 'ratingregister'}
+
+    receptor = cell_number
     if receptor.startswith('0999'):
         data['receptor'] = '09210419379'
     if sms_api_key is None:
