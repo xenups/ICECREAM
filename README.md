@@ -14,7 +14,27 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
 **To bind icecream to gunicorn:**
     
     gunicorn --workers=2  'manage:wsgi_app()'
-    
+
+ 
+Copy and rename .env_example to .env and change the variable as project needs.
+Or you can add the parameters manually into .env file
+To generate an .env file these values are required:
+
+| Variable Name                     | Description                    |
+|-----------------------------------|--------------------------------|
+| host                     | icecream host |
+| port                     | icecream port |
+| db_name                  | your database db_name|
+| db_user                  | your database username|
+| db_pass                  | your database password|
+| db_host                  | your database host|
+| db_port                  | your database port|
+| project_secret            | needs for jwt authentication: experimental feature|
+| jwt_ttl            | jwt time to live|
+| sentry_dsn            | sentry address (logging tool), it can be|
+| media_files            | static media folder|
+
+already icecream is working with postgres
 
 **to create new app:**
 
@@ -22,7 +42,7 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
     then register app in settings.py
 
 #### **Migration Commands:**
-**To initialize migration:** \
+**To initialize migration:** 
 
     alembic init alembic
     python manage.py makealembic
