@@ -19,10 +19,11 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
     then register app in settings.py
 
 #### **Migration Commands:**
-**To initialize migration:**
+**To initialize migration:** \
 
     alembic init alembic
-after intializing alembic config the env.py in alembic folder  like env.py file exist into the  project
+    python manage.py makealembic
+    
 
 **To make migration:**
 
