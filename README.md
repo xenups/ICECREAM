@@ -62,3 +62,28 @@ already icecream is working with postgres
 **After that register the address in the .env:**
 
     media_files = /statics/media/
+###RBAC in ICECREAM
+####Role-based User Access Control
+in ICECREAM an access control model is abstracted into two csv file. So switching or upgrading the authorization mechanism for a project is just as simple as modifying a csv files. You can customize your own access control model by combining the available models.
+we assume we had 2 roles.
+
+we define roles into roles.csv :
+
+| admin                     | staff                    |
+|-----------------------------------|--------------------------------|
+
+in the next step we will define our policy in model_rules:
+
+| role                     | operation                    |       object_you_want to modify      |
+|-----------------------------------|--------------------------------|--------------------------------|
+
+like this: 
+
+| staff                     | create                    |       message      |
+|-----------------------------------|--------------------------------|--------------------------------|
+
+so in the last step we pass the Model to the ACLHandler
+and pass the current user to check permission as bellow:
+
+    aclh = ACLHandler(Resource=Message)
+    identity = aclh.get_identity(current_user)
