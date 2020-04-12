@@ -1,8 +1,8 @@
 from bottle import HTTPError
 from marshmallow import ValidationError
 
-from app_tutorial.models import Student, Class
-from app_tutorial.schemas import StudentSchema, student_serializer, class_serializer, students_serializer
+from app_tutorial.models import Student, Class, People
+from app_tutorial.schemas import StudentSchema, student_serializer, class_serializer, students_serializer, PeopleSchema
 from ICECREAM.models.query import get_or_create
 
 
@@ -38,22 +38,32 @@ def new_student(db_session, data):
 def new_class(db_session, data):
     try:
         class_serializer.load(data)
-        class_room = Class()
-        class_room.id = data['id']
-        class_room_instance = get_or_create(Class, db_session, id=class_room.id)
-        if class_room_instance.id is None:
-            db_session.add(class_room)
-
-        students = data['students']
-        for student in students:
-            student_instance = get_or_create(Student, db_session, id=student['id'])
-            if student_instance.id is None:
-                student_instance.id = student['id']
-                class_room_instance.students.append(student_instance)
-                db_session.add(student_instance)
-        db_session.add(class_room_instance)
-        db_session.commit()
-        serialized_class = class_serializer.dump(class_room)
-        return serialized_class
     except ValidationError as err:
         return err.messages
+
+    class_room = Class()
+    class_room.id = data['id']
+    class_room_instance = get_or_create(Class, db_session, id=class_room.id)
+    if class_room_instance.id is None:
+        db_session.add(class_room)
+
+    students = data['students']
+    for student in students:
+        student_instance = get_or_create(Student, db_session, id=student['id'])
+        if student_instance.id is None:
+            student_instance.id = student['id']
+            class_room_instance.students.append(student_instance)
+            db_session.add(student_instance)
+    db_session.add(class_room_instance)
+    db_session.commit()
+    serialized_class = class_serializer.dump(class_room)
+    return serialized_class
+
+
+def get_peoples(db_session):
+    try:
+        peoples = db_session.query(People).all()
+        serializer = PeopleSchema()
+        return peoples
+    except HTTPError as e:
+        return e.body
