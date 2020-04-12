@@ -1,8 +1,7 @@
-from bottle_jwt import JWTProviderPlugin
-
+from app_user.models import User
 from ICECREAM.models.query import get
 from ICECREAM.wrappers import db_handler
-from app_user.models import User
+from bottle_jwt import JWTProviderPlugin
 from app_user.schemas import user_serializer
 from settings import project_secret, jwt_ttl
 
@@ -23,8 +22,9 @@ class AuthBackend(object):
         return None
 
     def get_user(self, user_id):
-        if user_id == self.user['id']:
-            return {k: self.user[k] for k in self.user if k != 'password'}
+        if hasattr(self, 'user'):
+            if user_id == self.user['id']:
+                return {k: self.user[k] for k in self.user if k != 'password'}
         return None
 
 
