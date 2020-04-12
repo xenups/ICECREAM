@@ -14,7 +14,7 @@ apps = [
     'app_foo.urls.FOOApp',
     'app_tutorial.urls.ClassApp',
     'app_signup.urls.SignUpApp',
-    # 'app_user.urls.USERApp'
+    'app_user.urls.USERApp'
 ]
 default_address = {
     'host': os.getenv('host'),

@@ -1,17 +1,16 @@
 "ICECREAM"
-from bottle import HTTPResponse, HTTPError
+import bottle
+from ICECREAM.rbac import ACLHandler
 from marshmallow import ValidationError
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm.exc import NoResultFound
-
+from bottle import HTTPResponse, HTTPError
 from ICECREAM.models.query import get_or_create
-from app_foo.controller import get_rooms
-from app_foo.schemas import RoomSchema
-from app_user.models import User, Person
-from app_user.schemas import UserSchema, user_serializer, users_serializer
+from app_user.models import User, Person, Message
+from app_user.schemas import user_serializer, users_serializer
 
 
 def get_users(db_session):
+    user = bottle.request.get_user()
+    print(user)
     try:
         users = db_session.query(User).all()
         users = users_serializer.dump(users)
@@ -19,6 +18,10 @@ def get_users(db_session):
 
     except Exception:
         raise HTTPError(status=404, body="nemishe")
+
+
+def hello():
+    return {"id": "1", "name": "Thing1"}
 
 
 def new_user(db_session, data):
@@ -40,17 +43,26 @@ def new_user(db_session, data):
             db_session.add(person)
             user = get_or_create(User, db_session, username=username)
             user.username = username
+            user.set_roles(data['roles'])
             user.set_password(data['password'])
             user.person = person
             db_session.add(user)
             db_session.commit()
             result = user_serializer.dump(db_session.query(User).get(user.id))
-            rooms = get_rooms(db_session=db_session)
-            room_serializer = RoomSchema(many=True)
-            rooms = room_serializer.dump(rooms)
-            result.update({"rooms": rooms})
             return result
         except ValidationError as err:
             return err.messages
     except HTTPError as err:
         raise HTTPError(status=404, body="something")
+
+
+def new_message(db_session, data):
+    user = bottle.request.get_user()
+    current_user = db_session.query(User).get(user['id'])
+    aclh = ACLHandler(Resource=Message)
+    identity = aclh.get_identity(current_user)
+    if identity.check_permission("create", Message):
+        print("man staff am va mitunam add konam")
+    if identity.check_permission("edit", Message):
+        print("man admin am va mitunam edit konam")
+    del aclh

@@ -12,9 +12,9 @@ class UserSchema(Schema):
     person = fields.Nested(PersonSchema)
 
     class Meta:
-        fields = ('id', 'username', 'password', 'person')
+        fields = ('id', 'username', 'password', 'roles', 'person')
 
 
 user_serializer = UserSchema()
 person_serializer = PersonSchema()
-users_serializer = UserSchema(many=True, only=('id', 'username', 'person'))
+users_serializer = UserSchema(many=True, only=('id', 'username', 'roles', 'person'))

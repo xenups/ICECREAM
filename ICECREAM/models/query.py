@@ -1,6 +1,3 @@
-from sqlalchemy.orm.exc import NoResultFound
-
-
 #########need to be refactor################
 def get_or_create(model, session, **kwargs):
     try:
