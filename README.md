@@ -54,7 +54,7 @@ already icecream is working with postgres
     alembic upgrade head
 
 
- #### **File serving:**
+#### **File serving:**
 **To serving files first  need to create a static folder in root of project:**
 
      Create a folder like :
@@ -63,9 +63,9 @@ already icecream is working with postgres
 
     media_files = /statics/media/
     
-###RBAC in ICECREAM
+### **RBAC in ICECREAM**
 
-####Role-based User Access Control
+#### **Role-based User Access Control**
 
 in ICECREAM an access control model is abstracted into two csv file. So switching or upgrading the authorization mechanism for a project is just as simple as modifying a csv files. You can customize your own access control model by combining the available models.
 we assume we had 2 roles.
