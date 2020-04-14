@@ -1,9 +1,10 @@
 "ICECREAM"
 
 from uuid import uuid4
-from bottle import HTTPError
 from ICECREAM.cache import RedisCache
 from marshmallow import ValidationError
+
+from ICECREAM.http import HTTPError
 from app_signup.schemas import SMSSchema
 from ICECREAM.util import generate_otp_code
 from send_message.send_message import send_message
