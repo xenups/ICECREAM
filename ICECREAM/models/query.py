@@ -42,7 +42,7 @@ def get_object_or_404(model, session, *args, **kwargs):
     raise HTTPError(404, body="Not Found!")
 
 
-def is_object_exist(model, session, *args, **kwargs):
+def is_object_exist_409(model, session, *args, **kwargs):
     model_object = session.query(model).filter(*args, **kwargs).first()
     if model_object:
         raise HTTPError(409, body="Already exist")

@@ -5,7 +5,7 @@ from ICECREAM.cache import RedisCache
 from marshmallow import ValidationError
 
 from ICECREAM.http import HTTPError
-from ICECREAM.models.query import get_object_or_404, is_object_exist
+from ICECREAM.models.query import get_object_or_404, is_object_exist_409
 from app_signup.schemas import SMSSchema
 from ICECREAM.util import generate_otp_code
 from app_user.models import User, Person
@@ -24,7 +24,7 @@ def account_activation(data, db_session):
 
     cache = RedisCache()
     cell_number = data.get('cell_number')
-    is_object_exist(User, db_session, Person.phone == cell_number)
+    is_object_exist_409(User, db_session, Person.phone == cell_number)
 
     if cache.get_cache_multiple_value(cell_number, 'activation_code'):
         raise HTTPError(403, ' Message.ALREADY_HAS_VALID_KEY')
