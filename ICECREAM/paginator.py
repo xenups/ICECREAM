@@ -15,10 +15,9 @@ class Paginate(object):
         page_size, page_number, num_pages, total_results = pagination
         _next = cls.is_next_page(page_number, page_size, total_results)
         result = serializer.dump(query)
-        __paginate_serializer = PaginateSchema()
         __dict_paginate = {"count": page_number, "next": _next, "total_results": total_results, "total_page": num_pages,
                            "result": result}
-        __serialized_result = __paginate_serializer.dump(__dict_paginate)
+        __serialized_result = PaginateSchema().dump(__dict_paginate)
         return __serialized_result
 
     @staticmethod
