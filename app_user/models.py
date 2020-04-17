@@ -10,14 +10,13 @@ class Person(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=True)
     last_name = Column(String)
-    phone = Column(String)
     bio = Column(String)
 
 
 class User(ResourceMixin, Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False, unique=True)
+    phone = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
     roles = Column(String, nullable=False, default="")
     person_id = Column(Integer, ForeignKey('persons.id'))

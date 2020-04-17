@@ -1,8 +1,6 @@
 from sqlalchemy.orm.exc import NoResultFound
-
 #########need to be refactor################
 from ICECREAM.http import HTTPError
-from app_user.models import Person, User
 
 
 def get_or_create(model, session, **kwargs):
@@ -22,13 +20,15 @@ def get_or_create(model, session, **kwargs):
         return None
 
 
-def get(model, session, **kwargs):
+def get_object(model, session, *args, **kwargs):
+    """
+    Use get() to return an object, return None if object does not exist.
+    """
     try:
-        model_object = session.query(model).filter_by(**kwargs).first()
+        model_object = session.query(model).filter(*args, **kwargs).first()
         return model_object
     except Exception as e:
-        model_object = model()
-        return model_object
+        return None
 
 
 def get_object_or_404(model, session, *args, **kwargs):
@@ -43,6 +43,9 @@ def get_object_or_404(model, session, *args, **kwargs):
 
 
 def is_object_exist_409(model, session, *args, **kwargs):
+    """
+        Use is_object_exist_409 if object exist raise Http409.
+    """
     model_object = session.query(model).filter(*args, **kwargs).first()
     if model_object:
         raise HTTPError(409, body="Already exist")

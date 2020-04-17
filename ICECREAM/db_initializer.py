@@ -9,15 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class ResourceMixin(object):
-
-    def __eq__(self, other):
-        return hasattr(other, "id") and self.id == other.id
-
-    def __hash__(self):
-        return hash(self.id)
-
-
 class BaseDBConnector:
     def __init__(self):
         try:
@@ -31,6 +22,15 @@ class BaseDBConnector:
 
 class DBConnector(BaseDBConnector, metaclass=Singleton):
     pass
+
+
+class ResourceMixin(object):
+
+    def __eq__(self, other):
+        return hasattr(other, "id") and self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 def get_database_uri():
