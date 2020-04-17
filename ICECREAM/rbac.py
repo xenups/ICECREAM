@@ -1,7 +1,9 @@
 import csv
+import bottle
 from rbac.acl import Registry
-from rbac.context import IdentityContext
+from app_user.models import User
 from rbac.proxy import RegistryProxy
+from rbac.context import IdentityContext
 
 
 class ACLHandler(object):
@@ -34,3 +36,11 @@ class ACLHandler(object):
     def get_identity(self, current_user):
         identity = IdentityContext(self.__acl, lambda: current_user.get_roles())
         return identity
+
+
+def get_user_identity(db_session):
+    user = bottle.request.get_user()
+    current_user = db_session.query(User).get(user['id'])
+    aclh = ACLHandler(Resource=User)
+    identity = aclh.get_identity(current_user)
+    return identity
