@@ -6,12 +6,17 @@ import rootpath
 import sentry_sdk
 from shutil import copy
 from pydoc import locate
+from getpass import getpass
 from .util import strip_path
+from .wrappers import db_handler
 from ICECREAM.baseapp import BaseApp
+from .models.query import get_or_create
+from app_user.models import Person, User
 from app_user.authentication import jwt_plugin
 from bottle import Bottle, run, static_file, BaseTemplate
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
+from app_user.schemas import user_serializer, superuser_serializer
 from settings import default_address, apps, sentry_dsn, DEBUG, media_path
 
 
@@ -22,7 +27,7 @@ def get_default_address():
 
 rootpath.append()
 ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
-commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic']
+commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic', 'createsuperuser']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
@@ -68,6 +73,8 @@ class CommandManager(object):
             return core.execute_wsgi()
         if self.command.get_command() == 'makealembic':
             self.init_alembic_env()
+        if self.command.get_command() == "createsuperuser":
+            self.create_super_user()
         if self.command.get_command() == 'startapp':
             if self.command.has_subcommand():
                 self.create_app(self.command.get_subcommand()[0])
@@ -101,6 +108,30 @@ class CommandManager(object):
             copy(src, dst)
         else:
             logging.info("please alembic init alembic , before makealembic")
+
+    @db_handler
+    def create_super_user(self, db_session):
+        try:
+            name = input("Name:")
+            person = get_or_create(Person, db_session, name=name)
+            phone = input("Phone:")
+            password = getpass("Password: ")
+            person.last_name = input("LastName:")
+            person.name = name
+            person.bio = ""
+            db_session.add(person)
+            user = get_or_create(User, db_session, phone=phone)
+            user.phone = phone
+            user.set_roles(["admin"])
+            user.set_password(password)
+            user.person = person
+            superuser_serializer.load(user_serializer.dump(user))
+            db_session.add(user)
+            db_session.commit()
+            result = user_serializer.dump(db_session.query(User).get(user.id))
+            return result
+        except Exception as e:
+            print(e.args)
 
 
 class Core(object):
