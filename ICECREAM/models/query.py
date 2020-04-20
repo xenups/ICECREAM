@@ -15,9 +15,8 @@ def get_or_create(model, session, **kwargs):
 
     except Exception as e:  # or whatever error/exception it is on SQLA
         model_object = model()
-        print("exception is happened")
         # do it here if you want to save the obj to the db
-        return None
+        return model_object
 
 
 def get_object(model, session, *args, **kwargs):
@@ -48,5 +47,5 @@ def is_object_exist_409(model, session, *args, **kwargs):
     """
     model_object = session.query(model).filter(*args, **kwargs).first()
     if model_object:
-        raise HTTPError(409, body="Already exist")
+        raise HTTPError(409, body=model().__class__.__name__ + " Already exist")
     return None
