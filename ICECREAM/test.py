@@ -31,7 +31,6 @@ class Client(object):
         response.status = self.test_core.post_json(__api_url, params=data).status
         response.status_code = self.test_core.post_json(__api_url, params=data).status_code
         response.body = self.test_core.post_json(__api_url, params=data).body
-        self.test_core.post_json()
         return response
 
 # TODO : PUT PATCH DELETE AND FILES
