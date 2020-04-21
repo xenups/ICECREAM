@@ -7,6 +7,8 @@ import sentry_sdk
 from shutil import copy
 from pydoc import locate
 from getpass import getpass
+
+from .filters import SmartFiltersPlugin
 from .util import strip_path
 from .wrappers import db_handler
 from ICECREAM.baseapp import BaseApp
@@ -141,6 +143,7 @@ class Core(object):
             BaseTemplate.defaults['get_url'] = self.core.get_url
             self.__route_homepage()
             self.__init_jwt()
+            self.__init_filters()
             self.__route_file_server()
             self.__initialize_log()
             self.__register_routers()
@@ -153,6 +156,9 @@ class Core(object):
             self.core.install(jwt_plugin)
             return True
         return False
+
+    def __init_filters(self):
+        self.core.install(SmartFiltersPlugin())
 
     def __route_homepage(self, ):
         if DEBUG:
