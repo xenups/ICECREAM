@@ -25,3 +25,4 @@ WebTest==2.0.34
 Werkzeug==1.0.0
 zipp==2.2.0
 sqlalchemy-filters==0.10.0
+ujson==2.0.3
