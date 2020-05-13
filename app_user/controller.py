@@ -1,82 +1,130 @@
 "ICECREAM"
 import bottle
+from distutils.util import strtobool
 from sqlalchemy.orm import Session
-from sqlalchemy_filters import apply_filters
-
 from ICECREAM.cache import RedisCache
+from ICECREAM.file_handler import upload
 from ICECREAM.paginator import Paginate
-from app_user.models import User, Person
+from ICECREAM.validators import validate_data
+from app_user.messages import ACTIVATED_MSG, DEACTIVATED_MSG, DELETE_IMG, SENT_SMS_MSG, NOT_SENT_SMS_MSG, \
+    NOT_VALID_CODE, STILL_HAS_VALID_CODE, PASSWORD_CHANGED, OLD_PASSWORD_NOT_VALID
+from app_user.models import User, Person, PersonImage
 from send_message.send_message import SMS
 from ICECREAM.util import generate_otp_code
-from ICECREAM.rbac import get_user_identity
+from ICECREAM.rbac import validate_permission, get_rules_json, get_roles_json
 from ICECREAM.http import HTTPError, HTTPResponse
-from ICECREAM.models.query import get_or_create, get_object, is_object_exist_409, get_object_or_404
-from app_user.schemas import users_serializer, user_serializer, forget_pass_serializer, reset_password_serializer
+from ICECREAM.models.query import get_or_create, is_object_exist_409, get_object_or_404, set_objects_limit
+from app_user.schemas import users_serializer, user_serializer, forget_pass_serializer, reset_password_serializer, \
+    person_image_serializer, user_edit_serializer, set_role_serializer, change_password_serializer
 
 forget_password_ttl = 600
 
 
-def get_users(db_session):
-    try:
-        page_number = bottle.request.GET.get('page') or 1
-        page_size = bottle.request.GET.get('count') or 10
-        users = db_session.query(User)
-        return Paginate(users, int(page_number), int(page_size), users_serializer)
-    except Exception as e:
-        raise HTTPError(status=404, body=e.args)
+def get_current_user(db_session: Session):
+    req_user_json = bottle.request.get_user()
+    current_user = db_session.query(User).get(req_user_json['id'])
+    result = user_serializer.dump(current_user)
+    return HTTPResponse(status=200, body=result)
+
+
+def get_users(db_session: Session):
+    validate_permission("get_users", db_session)
+    users = db_session.query(User).order_by(User.created_date)
+    result = Paginate(users, users_serializer)
+    return HTTPResponse(status=200, body=result)
 
 
 def get_user(pk, db_session):
     user = get_object_or_404(User, db_session, User.id == pk)
     result = user_serializer.dump(user)
-    raise HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=200, body=result)
 
 
-def delete_user(pk, db_session):
-    identity = get_user_identity(db_session)
-    if identity.check_permission("delete_user", User):
-        user = get_object_or_404(User, db_session, User.id == pk)
-        db_session.delete(user)
-        db_session.commit()
-        raise HTTPResponse(status=204, body="Successfully deleted !")
-    raise HTTPError(status=403, body="Access denied")
+def change_password(db_session, data):
+    validate_data(change_password_serializer, data)
+    req_user_json = bottle.request.get_user()
+    current_user = db_session.query(User).get(req_user_json['id'])
+    if current_user.check_password(data['old_password']):
+        current_user.set_password(data['password'])
+        return HTTPResponse(*PASSWORD_CHANGED)
+    raise HTTPError(*OLD_PASSWORD_NOT_VALID)
 
 
-def create_user(db_session, data):
-    validation_errors = user_serializer.validate(data)
-    if validation_errors:
-        raise HTTPError(404, validation_errors)
-    identity = get_user_identity(db_session)
-    if identity.check_permission("add_user", User):
-        is_object_exist_409(User, db_session, User.phone == data['phone'])
-        person = data['person']
-        person_obj = get_or_create(Person, db_session, name=person['name'])
-        person_obj.name = person['name']
-        person_obj.last_name = person['last_name']
-        person_obj.email = person['email']
-        db_session.add(person_obj)
-        user = get_or_create(User, db_session, phone=data['phone'])
-        user.phone = data['phone']
-        user.set_roles(data['roles'])
-        user.username = user.get_phone
-        user.set_password(data['password'])
-        user.person = person_obj
-        db_session.add(user)
-        db_session.commit()
-        result = user_serializer.dump(db_session.query(User).get(user.id))
-        return result
-    raise HTTPError(403, "Access denied")
+def activate_user(pk, db_session: Session, data):
+    validate_permission("activate_user", db_session)
+    activation = data["activation"]
+    user = get_object_or_404(User, db_session, User.id == pk)
+    user.is_active = strtobool(activation)
+    db_session.commit()
+    if user.is_active:
+        return HTTPResponse(*ACTIVATED_MSG)
+    return HTTPResponse(*DEACTIVATED_MSG)
 
 
-def forget_pass(db_session, data):
-    validation_errors = forget_pass_serializer.validate(data)
-    if validation_errors:
-        raise HTTPError(404, validation_errors)
+def create_user(db_session: Session, data):
+    validate_data(user_serializer, data)
+    validate_permission("add_user", db_session)
+    is_object_exist_409(User, db_session, User.phone == data['phone'])
+    person = data['person']
+    person_obj = get_or_create(Person, db_session, name=person['name'])
+    person_obj.name = person['name']
+    person_obj.last_name = person['last_name']
+    person_obj.email = person['email']
+    db_session.add(person_obj)
+    user = get_or_create(User, db_session, phone=data['phone'])
+    user.phone = data['phone']
+    user.set_roles(data['roles'])
+    user.username = user.get_phone
+    user.set_password(data['password'])
+    user.person = person_obj
+    db_session.add(user)
+    db_session.commit()
+    result = user_serializer.dump(db_session.query(User).get(user.id))
+    return HTTPResponse(status=201, body=result)
+
+
+def edit_user(pk, db_session: Session, data):
+    validate_data(user_edit_serializer, data)
+    user = get_object_or_404(User, db_session, User.id == pk)
+    person = data['person']
+    user.person.name = person['name']
+    user.person.last_name = person['last_name']
+    user.person.email = person['email']
+    user.phone = data['phone']
+    user.username = data['phone']
+    db_session.commit()
+    result = user_serializer.dump(db_session.query(User).get(user.id))
+    return HTTPResponse(status=201, body=result)
+
+
+def add_person_image(db_session: Session, data):
+    validate_data(person_image_serializer, data)
+    person_image = PersonImage()
+    person = get_object_or_404(Person, db_session, Person.id == data['person_id'])
+    set_objects_limit(person.person_images, limit=1, session=db_session)
+    person_image.name = upload(data=data)
+    person_image.person_id = data['person_id']
+    db_session.add(person_image)
+    db_session.commit()
+    result = db_session.query(PersonImage).get(person_image.id)
+    result = person_image_serializer.dump(result)
+    return HTTPResponse(status=200, body=result)
+
+
+def remove_person_image(pk, db_session: Session, data):
+    person_image = get_object_or_404(Person, db_session, Person.id == data['person_id'])
+    db_session.delete(person_image)
+    db_session.commit()
+    return HTTPResponse(*DELETE_IMG)
+
+
+def forget_pass(db_session: Session, data):
+    validate_data(forget_pass_serializer, data)
     cache = RedisCache()
     phone = data.get('phone')
     get_object_or_404(User, db_session, User.phone == phone)
     if cache.get_cache_multiple_value(phone, 'forget_password_token'):
-        raise HTTPError(403, ' Phone already has valid  code')
+        raise HTTPError(*STILL_HAS_VALID_CODE)
     forget_password_token = generate_otp_code()
     # celery
     if SMS().send_forget_password(phone, phone, forget_password_token):
@@ -84,66 +132,39 @@ def forget_pass(db_session, data):
                                        custom_value_name='forget_password_token',
                                        ttl=forget_password_ttl)
     else:
-        raise HTTPError(403, ' Message Didnt send')
-    raise HTTPResponse(200, 'Message sent')
+        raise HTTPError(*SENT_SMS_MSG)
+    return HTTPResponse(*NOT_SENT_SMS_MSG)
 
 
 def reset_pass(data, db_session: Session):
-    validation_errors = reset_password_serializer.validate(data)
-    if validation_errors:
-        raise HTTPError(404, validation_errors)
+    validate_data(reset_password_serializer, data)
     cache = RedisCache()
     phone = data.get('phone')
     user = get_object_or_404(User, db_session, User.phone == phone)
     forget_password_token = cache.get_cache_multiple_value(phone, 'forget_password_token')
     if forget_password_token is None or forget_password_token != data.get('token'):
-        raise HTTPError(404, body='code is not valid')
+        raise HTTPError(*NOT_VALID_CODE)
     user.set_password(password=data.get('password'))
     db_session.commit()
     result = reset_password_serializer.dump(user)
-    return result
+    return HTTPResponse(status=201, body=result)
 
 
-# def filters(query):
-#     _filters = bottle.request.query.smart_filters()
-#     query_filters = []
-#     print(_filters.items())
-    # for field, value in _filters.items():
-    #     _filter = {'field': str(field), 'op': '==', 'value': str(value)}
-    #     query_filters.append(_filter)
-    # return apply_filters(query, query_filters)
+def set_user_role(pk, db_session: Session, data):
+    validate_data(set_role_serializer, data)
+    validate_permission("edit_roles", db_session)
+    user = get_object_or_404(User, db_session, User.id == pk)
+    user.set_roles(data['roles'])
+    db_session.commit()
+    result = user_serializer.dump(db_session.query(User).get(user.id))
+    return HTTPResponse(status=201, body=result)
 
 
-def new_message(db_session, data):
-    pass
-    # query = db_session.query(User).join(Person)
+def get_rules(db_session: Session):
+    req_user_json = bottle.request.get_user()
+    current_user = db_session.query(User).get(req_user_json['id'])
+    return HTTPResponse(status=200, body=get_rules_json(current_user), message="rules")
 
-    # filter_spec = [{'model': 'User', 'field': 'phone', 'op': '==', 'value': '09210419379'},
-    #                {'model': 'Person', 'field': 'name', 'op': '==', 'value': "amir"}]
-    # filtered_query = apply_filters(query, filter_spec)
 
-    # result = filtered_query.all()
-    # print(result)
-    # users = db_session.query(User)
-    # us = filters(query)
-    # print(us)
-    # for f in us:
-    #     print(f.person.name)
-
-    # filter_spec = [{'field': 'phone', 'op': '==', 'value': '09210419379'},
-    #                {'field': 'email', 'op': '==', 'value': 'xenups@gmail.com'}]
-    # users = db_session.query(User)
-    # filtered_query = apply_filters(users, filter_spec)
-    # for f in filtered_query:
-    #     user = User()
-    #     user = f
-    #     print(user)
-    #     d= user_serializer.dump(user)
-    #     print(d)
-
-    # print(user.person.name)
-    # identity = get_user_identity(db_session)
-    # if identity.check_permission("create", Message):
-    #     print("man staff am va mitunam add konam")
-    # if identity.check_permission("edit", Message):
-    #     print("man admin am va mitunam edit konam")
+def get_roles():
+    return HTTPResponse(status=200, body=get_roles_json())
