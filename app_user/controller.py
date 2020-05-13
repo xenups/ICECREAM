@@ -9,13 +9,13 @@ from ICECREAM.validators import validate_data
 from app_user.messages import ACTIVATED_MSG, DEACTIVATED_MSG, DELETE_IMG, SENT_SMS_MSG, NOT_SENT_SMS_MSG, \
     NOT_VALID_CODE, STILL_HAS_VALID_CODE, PASSWORD_CHANGED, OLD_PASSWORD_NOT_VALID
 from app_user.models import User, Person, PersonImage
-from send_message.send_message import SMS
 from ICECREAM.util import generate_otp_code
 from ICECREAM.rbac import validate_permission, get_rules_json, get_roles_json
 from ICECREAM.http import HTTPError, HTTPResponse
 from ICECREAM.models.query import get_or_create, is_object_exist_409, get_object_or_404, set_objects_limit
 from app_user.schemas import users_serializer, user_serializer, forget_pass_serializer, reset_password_serializer, \
     person_image_serializer, user_edit_serializer, set_role_serializer, change_password_serializer
+from send_message.send_message.send_message import SMS
 
 forget_password_ttl = 600
 
