@@ -1,6 +1,6 @@
 "ICECREAM"
 from uuid import uuid4
-from ICECREAM.http import HTTPError
+from ICECREAM.http import HTTPError, HTTPResponse
 from ICECREAM.cache import RedisCache
 from marshmallow import ValidationError
 from app_signup.schemas import SMSSchema
@@ -8,6 +8,7 @@ from app_user.models import User, Person
 from ICECREAM.util import generate_otp_code
 from ICECREAM.models.query import is_object_exist_409
 from send_message.send_message import send_message
+from send_message.send_message.send_message import SMS
 
 valid_activating_interval = 86400
 valid_registering_interval = 200
@@ -24,13 +25,13 @@ def phone_activation(data, db_session):
     if cache.get_cache_multiple_value(phone, 'activation_code'):
         raise HTTPError(403, ' Phone already has valid activation code')
     activation_code = generate_otp_code()
-    if send_message(cell_number=phone, activation_code=activation_code):
+    if SMS().send_activation_code(cell_number=phone, activation_code=activation_code):
         cache.set_cache_multiple_value(key=phone, value=activation_code, custom_value_name='activation_code',
                                        ttl=valid_registering_interval)
     else:
         raise HTTPError(403, ' Message.Didnt send')
     result = {'msg': ' Message.MESSAGE_SENT' + phone}
-    return result
+    return HTTPResponse(status=200, body=result)
 
 
 def phone_validation(data, db_session):
@@ -46,5 +47,5 @@ def phone_validation(data, db_session):
     signup_token = str(uuid4())
     cache.set_cache_multiple_value(cell_number, signup_token, 'signup_token', valid_activating_interval)
 
-    data = {'phone': cell_number, 'signup_token': signup_token}
-    return data
+    result = {'phone': cell_number, 'signup_token': signup_token}
+    return HTTPResponse(status=200, body=result)
