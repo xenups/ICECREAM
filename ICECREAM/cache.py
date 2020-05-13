@@ -1,13 +1,15 @@
 import json
 import redis
 
+from settings import redis_cache
 from .util import Singleton
 
 
 class BaseRedisConnector:
     def __init__(self):
         try:
-            self.cache = redis.Redis()
+            self.cache = redis.Redis(host=redis_cache['redis_host'], port=redis_cache['redis_port'],
+                                     password=redis_cache['redis_pass'])
 
         except Exception as error:
             print(error)
@@ -22,10 +24,11 @@ class RedisCache(object):
         self.__redis_connector = RedisConnector()
 
     def get_cache_multiple_value(self, key, custom_value_name):
-        __json_value_data = self.__redis_connector.cache.get(key)
-        if __json_value_data is not None:
-            __value = (json.loads(__json_value_data)).get(custom_value_name, None)
-            return __value
+        if key:
+            __json_value_data = self.__redis_connector.cache.get(key)
+            if __json_value_data is not None:
+                __value = (json.loads(__json_value_data)).get(custom_value_name, None)
+                return __value
         return None
 
     def set_cache_multiple_value(self, key, value, custom_value_name, ttl=60):
