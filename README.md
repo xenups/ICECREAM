@@ -35,7 +35,10 @@ To generate an .env file these values are required:
 | media_files            | static media folder|
 
 already icecream is working with postgres
+**to create super user:**
 
+    python manage.py createsuperuser
+    
 **to create new app:**
 
     python manage.py startapp app_name
@@ -93,3 +96,55 @@ and pass the current user to check permission as bellow:
 
     aclh = ACLHandler(Resource=Message)
     identity = aclh.get_identity(current_user)
+    
+### **Full text search in ICECREAM**
+
+Full text search is a more advanced way to search a database. Full text search quickly finds all instances of a term (word) in a table without having to scan rows and without having to know which column a term is stored in. Full text search works by using text indexes.
+to provide full text search ICECREAM integrated with SQLAlchemy-Searchable, its provides full text search capabilities for SQLAlchemy models. Currently it only supports PostgreSQL.
+to start full text search first we should follow these steps:
+
+as the first step we should define the model in app : 
+
+```
+class Article(Base):
+    __tablename__ = 'article'
+    id = Column(Integer, primary_key=True)
+        name = Column(Unicode(255))
+        content = Column(sa.UnicodeText)
+        search_vector = Column(TSVectorType('name', 'content'))
+
+```
+after define models, need to add these lines to ICECREAM settings:
+```
+searches_index = [
+    ('article', 'search_vector', ['name','content'])
+]
+```
+and in the last step it can be sweet as an icecream
+```
+article1 = Article(name=u'First article', content=u'This is the first article')
+article2 = Article(name=u'Second article', content=u'This is the second article')
+session.add(article1)
+session.add(article2)
+session.commit()
+
+query = session.query(Article)
+
+query = search(query, 'first')
+
+print query.first().name
+# First article
+```
+Optionally specify sort=True to get results in order of relevance (ts_rank_cd):
+
+```
+query = search(query, 'first', sort=True)
+```
+When making changes to your database schema you have to make sure the associated search triggers and trigger functions get updated also. ICECREAM offers a helper command called index_search for this. to perform this ,its calling SQLAlchemy-Searchable  sync_trigger after every 
+```
+alembic upgrade head
+```
+to perform search trigger , should run this command  :
+```
+python manage.py index_search
+```
