@@ -8,9 +8,11 @@ from shutil import copy
 from pydoc import locate
 from getpass import getpass
 
-from .filters import SmartFiltersPlugin
+from sqlalchemy_searchable import sync_trigger
+
+from .db_initializer import db
 from .util import strip_path
-from .wrappers import db_handler
+from .wrappers import db_handler, cors
 from ICECREAM.baseapp import BaseApp
 from .models.query import get_or_create
 from app_user.models import Person, User
@@ -19,7 +21,7 @@ from bottle import Bottle, run, static_file, BaseTemplate
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from app_user.schemas import user_serializer, superuser_serializer
-from settings import default_address, apps, sentry_dsn, DEBUG, media_path
+from settings import default_address, apps, sentry_dsn, DEBUG, media_path, searches_index
 
 
 def get_default_address():
@@ -29,7 +31,7 @@ def get_default_address():
 
 rootpath.append()
 ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
-commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic', 'createsuperuser']
+commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic', 'createsuperuser', 'index_search']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
@@ -75,6 +77,8 @@ class CommandManager(object):
             return core.execute_wsgi()
         if self.command.get_command() == 'makealembic':
             self.init_alembic_env()
+        if self.command.get_command() == "index_search":
+            self.index_search()
         if self.command.get_command() == "createsuperuser":
             self.create_super_user()
         if self.command.get_command() == 'startapp':
@@ -116,24 +120,33 @@ class CommandManager(object):
         try:
             name = input("Name:")
             person = get_or_create(Person, db_session, name=name)
-            phone = input("Phone:")
-            password = getpass("Password: ")
             person.last_name = input("LastName:")
+            password = getpass("Password: ")
+            phone = input("Phone:")
             person.name = name
-            person.bio = ""
+            person.email = input("Email:")
             db_session.add(person)
             user = get_or_create(User, db_session, phone=phone)
+            user.username = input("UserName:")
             user.phone = phone
             user.set_roles(["admin"])
             user.set_password(password)
             user.person = person
-            superuser_serializer.load(user_serializer.dump(user))
+            # superuser_serializer.load(user_serializer.dump(user))
             db_session.add(user)
             db_session.commit()
             result = user_serializer.dump(db_session.query(User).get(user.id))
             return result
         except Exception as e:
             print(e.args)
+
+    @staticmethod
+    def index_search():
+        try:
+            for _index in searches_index:
+                sync_trigger(db.engine, *_index)
+        except Exception:
+            raise
 
 
 class Core(object):
@@ -143,12 +156,15 @@ class Core(object):
             BaseTemplate.defaults['get_url'] = self.core.get_url
             self.__route_homepage()
             self.__init_jwt()
-            self.__init_filters()
             self.__route_file_server()
             self.__initialize_log()
+            self.__init_cors()
+            self.__initialize_sentry_log()
             self.__register_routers()
+            logging.info("ICECREAM initialized")
+
         except Exception as e:
-            sys.stdout.write('core cannot initialize')
+            logging.error("icecream core cannot initialize")
             raise ValueError(e)
 
     def __init_jwt(self):
@@ -157,18 +173,18 @@ class Core(object):
             return True
         return False
 
-    def __init_filters(self):
-        self.core.install(SmartFiltersPlugin())
+    def __init_cors(self):
+        self.core.install(cors)
 
     def __route_homepage(self, ):
         if DEBUG:
             self.core.hook('before_request')(strip_path)
-            self.core.route('/', callback=self._serve_homepage_template)
-            self.core.route('/icecream/static/<filepath:path>', callback=self.server_homepage_static)
+            self.core.route('/api', callback=self._serve_homepage_template)
+            self.core.route('/api/icecream/static/<filepath:path>', callback=self.server_homepage_static)
 
     def __route_file_server(self):
         self.core.hook('before_request')(strip_path)
-        self.core.route('/media/<filepath:path>', callback=self.__serve_static_media)
+        self.core.route('/api/media/<filepath:path>', callback=self.__serve_static_media)
 
     @staticmethod
     def _serve_homepage_template():
@@ -193,7 +209,7 @@ class Core(object):
     def execute_runserver(self, address=None):
         try:
             __address = self.__convert_command_to_address(address)
-            run(self.core, host=__address['host'], port=__address['port'], debug=DEBUG)
+            run(self.core, host=__address['host'], port=__address['port'], server='tornado', debug=DEBUG, reloader=True)
             return self.core
         except Exception as err:
             sys.stdout.write('execute runserver has problem')
@@ -213,6 +229,21 @@ class Core(object):
 
     @staticmethod
     def __initialize_log():
+        log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+        root_logger = logging.getLogger()
+
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_formatter)
+        root_logger.addHandler(console_handler)
+
+        file_handler = logging.FileHandler(filename='icecream.log', mode='a')
+        file_handler.setLevel(level=logging.ERROR)
+        file_handler.setFormatter(log_formatter)
+        root_logger.addHandler(file_handler)
+        root_logger.setLevel(level=logging.INFO)
+
+    @staticmethod
+    def __initialize_sentry_log():
         sentry_logging = LoggingIntegration(
             level=logging.INFO,  # Capture info and above as breadcrumbs
             event_level=logging.ERROR  # Send errors as events
