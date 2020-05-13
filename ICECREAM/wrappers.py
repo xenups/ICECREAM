@@ -1,5 +1,11 @@
+import bottle
 from bottle import request
-from ICECREAM.db_initializer import DBConnector, get_db_session
+from sqlalchemy.exc import SQLAlchemyError
+
+from ICECREAM.db_initializer import get_db_session
+import logging
+
+logger = logging.getLogger()
 
 
 def pass_data(func):
@@ -22,48 +28,41 @@ def pass_data(func):
     return wrapper
 
 
+def cors(fn):
+    def _cors(*args, **kwargs):
+        # set CORS headers
+        bottle.response.headers['Access-Control-Allow-Origin'] = '*'
+        bottle.response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        bottle.response.headers[
+            'Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+        if bottle.request.method != 'OPTIONS':
+            # actual request; reply with the actual response
+            return fn(*args, **kwargs)
+
+    return _cors
+
+
 def db_handler(func):
     def wrapper(*args, **kwargs):
-        kwargs['db_session'] = get_db_session()
-        rtn = func(*args, **kwargs)
-        db_session = kwargs['db_session']
+        session = get_db_session()
         try:
-            db_session.commit()
-        except:
-            print('ex')
-            # logger.exception(LogMsg.COMMIT_ERROR, exc_info=True)
-            # raise Http_error(500, Message.COMMIT_FAILED)
-        return rtn
+            session.expire_on_commit = False
+            kwargs['db_session'] = session
+            rtn = func(*args, **kwargs)
+            return rtn
+        except(SQLAlchemyError, bottle.HTTPError):
+            session.rollback()
+            raise
 
     return wrapper
 
 
-def model_to_dict(obj):
-    object_dict = dict((name, getattr(obj, name)) for name in dir(obj) if
-                       (not name.startswith('_')) and not name.startswith(
-                           'mongo') and not name.startswith(
-                           'create_query')) if not isinstance(obj,
-                                                              dict) else obj
-
-    if "metadata" in object_dict:
-        del object_dict['metadata']
-    return object_dict
-
-
-def jsonify(func):
+def debug(fn):
     def wrapper(*args, **kwargs):
-        rtn = func(*args, **kwargs)
-        result = None
-        if isinstance(rtn, list):
-            result = []
-            for item in rtn:
-                if isinstance(item, str):
-                    result.append(item)
-                else:
-                    result.append(model_to_dict(item))
-            result = {"result": result}
-        else:
-            result = model_to_dict(rtn)
+        logger.info("Entering {:s}".format(fn.__name__))
+        result = fn(*args, **kwargs)
+        logger.info("Finished {:s}".format(fn.__name__))
         return result
 
     return wrapper
