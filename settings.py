@@ -9,6 +9,11 @@ project_root = rootpath.detect()
 media_path = project_root + os.getenv('media_files')
 # you can using instead of os.getenv  media_files = /statics/media/
 DEBUG: bool = True
+
+searches_index = [
+    # ('users', 'search_vector', ['user_name']),
+]
+
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
@@ -16,11 +21,17 @@ apps = [
     'app_signup.urls.SignUpApp',
     'app_user.urls.USERApp'
 ]
+rules_file = os.getenv("rules_file")
+roles_file = os.getenv("roles_file")
 default_address = {
     'host': os.getenv('host'),
     'port': os.getenv('port'),
 }
-
+redis_cache = {
+    'redis_host': os.getenv('redis_host') or '127.0.0.1',
+    'redis_port': (os.getenv('redis_port')) or 6379,
+    'redis_pass': os.getenv('redis_pass') or None,
+}
 database = {
     'db_user': os.getenv('db_user'),
     'db_pass': os.getenv('db_pass'),

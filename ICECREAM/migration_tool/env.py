@@ -1,5 +1,7 @@
 import sys
 import os
+
+import sqlalchemy_utils
 from alembic import context
 from sqlalchemy import pool
 from logging.config import fileConfig
@@ -46,12 +48,20 @@ def run_migrations_offline():
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        render_item=render_item,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
         context.run_migrations()
+
+
+def render_item(type_, obj, autogen_context):
+    """Apply custom rendering for selected items."""
+    autogen_context.imports.add("import sqlalchemy_utils")
+
+    return False
 
 
 def run_migrations_online():
@@ -64,7 +74,9 @@ def run_migrations_online():
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            render_item=render_item,
+
         )
 
         with context.begin_transaction():

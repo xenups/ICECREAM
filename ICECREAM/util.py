@@ -22,4 +22,4 @@ def strip_path():
 
 def get_media_link(file_name):
     host = request.get_header('host')
-    return 'http://{}/media/{}'.format(host, file_name)
+    return 'http://{}/api/media/{}'.format(host, file_name)

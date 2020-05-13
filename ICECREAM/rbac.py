@@ -1,32 +1,41 @@
+import os
 import csv
 import bottle
+from csv import reader
 from rbac.acl import Registry
+from sqlalchemy.orm import Session
+from ICECREAM.http import HTTPError
 from app_user.models import User
 from rbac.proxy import RegistryProxy
 from rbac.context import IdentityContext
 
+from settings import rules_file, roles_file, project_root
+
+roles_path = project_root + "/" + roles_file
+rules_path = project_root + "/" + rules_file
+
 
 class ACLHandler(object):
-    def __init__(self, Resource, rules_path="model_rules.csv", roles_path="roles.csv"):
+    def __init__(self, Resource):
         self.__acl = RegistryProxy(Registry())
-        self.__set_roles(roles_path)
+        self.__set_roles()
         self.__acl.add_resource(Resource)
         self.__resource = Resource
-        self.__set_rules(rules_path)
+        self.__set_rules()
 
     @staticmethod
     def _read_file(file_name: str) -> list:
         with open(file_name, newline='') as f:
-            reader = csv.reader(f)
-            data = list(reader)
+            _reader = csv.reader(f)
+            data = list(_reader)
             return data
 
-    def __set_roles(self, roles_path: str):
+    def __set_roles(self, ):
         roles = self._read_file(roles_path)[0]
         for role in roles:
             self.__acl.add_role(str(role))
 
-    def __set_rules(self, rules_path: str):
+    def __set_rules(self):
         rules = self._read_file(rules_path)
         _resource_name = str(self.__resource().__class__.__name__).lower().strip()
         for rule in rules:
@@ -38,9 +47,43 @@ class ACLHandler(object):
         return identity
 
 
+def get_rules_json(user):
+    roles = user.get_roles()
+    rules = []
+    with open(rules_path, 'r') as read_obj:
+        csv_reader = reader(read_obj)
+        for row in csv_reader:
+            # rule = {"role": row[0], "rule": row[1], "object": row[2]}
+            if row[0] in roles:
+                rules.append(row[1])
+    return rules
+
+
+def get_roles_json():
+    rules = []
+    with open(roles_path, 'r') as read_obj:
+        csv_reader = reader(read_obj)
+        for row in csv_reader:
+            rule = {"role": row}
+            rules.append(rule)
+    return rules
+
+
+def get_roles_list():
+    roles = ([a['role'] for a in get_roles_json()])
+    return roles[0]
+
+
 def get_user_identity(db_session):
     user = bottle.request.get_user()
     current_user = db_session.query(User).get(user['id'])
     aclh = ACLHandler(Resource=User)
     identity = aclh.get_identity(current_user)
     return identity
+
+
+def validate_permission(rule: str, db_session: Session):
+    identity = get_user_identity(db_session)
+    if identity.check_permission(rule, User):
+        return True
+    return HTTPError(status=403, body="Access_denied")
