@@ -60,6 +60,8 @@ class LoginSchema(Schema):
 
 
 class UserSchema(Schema):
+    # password_strength_validator = [
+    #     validate.Regexp("/^(?=(?:[^A-Z]*[A-Z]){2})(?=(?:[^0-9]*[0-9]){2}).{8,}$/", 'CaSu4Li8'), ]
     person = fields.Nested(PersonSchema)
     name = fields.String(required=True)
     phone = fields.String(required=True, validate=[validate.Length(equal=11)])

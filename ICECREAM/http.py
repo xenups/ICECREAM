@@ -16,6 +16,8 @@ class HTTPResponse(BottleHttpResponse):
 
     @staticmethod
     def convert_to_json(body, message):
+        if body is None:
+            return body
         if type(body) is dict:
             return json.dumps(body)
         return json.dumps({message: body})

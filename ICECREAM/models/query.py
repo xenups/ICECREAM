@@ -13,14 +13,14 @@ def get_nested_data(model, data, db_session):
             actor_obj = get_object_or_404(model, db_session, model.id == _object.get("id"))
             _list_object.append(actor_obj)
         return _list_object
-    HTTPError(400, "Model should has id")
+    HTTPError(400, "Model_should_has_id")
 
 
-def get_or_create(model, session, **kwargs):
+def get_or_create(model, session, *args, **kwargs):
     try:
         # basically check the obj from the db, this syntax might be wrong
 
-        model_object = session.query(model).filter_by(**kwargs).first()
+        model_object = session.query(model).filter(*args, **kwargs).first()
         if model_object is not None:
             return model_object
         model_object = model(**kwargs)

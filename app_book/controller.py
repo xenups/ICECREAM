@@ -23,7 +23,7 @@ def new_quote(data, db_session):
 
     content = data['content']
 
-    author = get_or_create(Author, db_session, first=first, last=last)
+    author = get_or_create(Author, db_session, Author.first == first, Author.last == last)
 
     if author is None:
         author = Author(first, last)

@@ -26,9 +26,15 @@ __date__ = '2016-9-14'
 
 __all__ = ('SmartFiltersPlugin',)
 
+import ast
 from functools import partial
 import bottle
 import ujson
+from mongosql import MongoQuery, MongoQuerySettingsDict
+from sqlalchemy_filters import apply_filters
+
+from ICECREAM.http import HTTPResponse, HTTPError
+from ICECREAM.paginator import Paginate
 
 
 class SmartFiltersPlugin(object):
@@ -105,3 +111,54 @@ class SmartFiltersPlugin(object):
                     request_filters[alias] = value_list
 
         return request_filters
+
+
+class RestFilter(object):
+    def __init__(self, db_session, model, serializer):
+        self.db_session = db_session
+        self.model = model
+        self.serializer = serializer
+
+    def filters(self):
+        filter_spec = self.__get_uri_query()
+        query = self.db_session.query(self.model)
+        try:
+            filtered_query = apply_filters(query, filter_spec)
+        except Exception as e:
+            raise HTTPResponse(status=200, body=e.args)
+        result = Paginate(filtered_query, self.serializer)
+        return result
+
+    def __get_uri_query(self):
+        try:
+            filters = bottle.request.query.smart_filters()
+            filter_spec = filters.get("filters")
+            filter_spec = ast.literal_eval(filter_spec)
+        except Exception as e:
+            raise HTTPResponse(status=404, body="url_is_not_valid")
+        return filter_spec
+
+
+def get_params_from_url(params: list):
+    fields_dict = {}
+    for param in params:
+        search_field = bottle.request.query.smart_filters().get(param)
+        if search_field:
+            fields_dict[str(param)] = str(search_field.encode("ISO-8859-1").decode("utf-8"))
+        else:
+            raise HTTPResponse(status=403, body="not_valid_field")
+    return fields_dict
+
+
+class MongoFilter(object):
+    def __init__(self, model, query, mongo_filter_query):
+        self.query = query
+        self.model = model
+        self.mongo_filter_query = mongo_filter_query
+
+    def filter(self):
+        try:
+            result = self.model.mongoquery(self.query).query(**self.mongo_filter_query).end().all()
+            return result
+        except Exception as e:
+            raise HTTPError(403, e.args)
