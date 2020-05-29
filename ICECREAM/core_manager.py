@@ -7,10 +7,10 @@ import sentry_sdk
 from shutil import copy
 from pydoc import locate
 from getpass import getpass
-
 from sqlalchemy_searchable import sync_trigger
 
 from .db_initializer import db
+from .filters import SmartFiltersPlugin
 from .util import strip_path
 from .wrappers import db_handler, cors
 from ICECREAM.baseapp import BaseApp
@@ -119,14 +119,14 @@ class CommandManager(object):
     def create_super_user(self, db_session):
         try:
             name = input("Name:")
-            person = get_or_create(Person, db_session, name=name)
+            person = get_or_create(Person, db_session, Person.name == name)
             person.last_name = input("LastName:")
             password = getpass("Password: ")
             phone = input("Phone:")
             person.name = name
             person.email = input("Email:")
             db_session.add(person)
-            user = get_or_create(User, db_session, phone=phone)
+            user = get_or_create(User, db_session, User.phone == phone)
             user.username = input("UserName:")
             user.phone = phone
             user.set_roles(["admin"])
@@ -158,9 +158,11 @@ class Core(object):
             self.__init_jwt()
             self.__route_file_server()
             self.__initialize_log()
+            self.__initialize_filters()
             self.__init_cors()
             self.__initialize_sentry_log()
             self.__register_routers()
+            # self.__initialize_throttle()
             logging.info("ICECREAM initialized")
 
         except Exception as e:
@@ -273,3 +275,6 @@ class Core(object):
         base_app_subclasses = self.__get_subclasses(BaseApp)
         for sub_class in base_app_subclasses:
             sub_class.call_router(sub_class, core=self.core)
+
+    def __initialize_filters(self):
+        self.core.install(SmartFiltersPlugin())
