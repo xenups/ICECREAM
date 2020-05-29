@@ -1,11 +1,11 @@
+from bottle_jwt import JWTProviderPlugin
 from sqlalchemy.orm import Session
 from ICECREAM.http import HTTPError
 from ICECREAM.validators import validate_data
-from app_user.messages import USER_IS_NOT_ACTIVE, TOKEN_EXPIRED
+from app_user.messages import USER_IS_NOT_ACTIVE, TOKEN_EXPIRED, AUTHENTICATION_ERROR
 from app_user.models import User
-from ICECREAM.models.query import  get_object
+from ICECREAM.models.query import get_object
 from ICECREAM.wrappers import db_handler
-from bottle_jwt import JWTProviderPlugin
 from app_user.schemas import user_serializer, login_serializer
 from settings import project_secret, jwt_ttl
 
@@ -15,7 +15,7 @@ class AuthBackend(object):
     def get_user_by_phone(self, db_session: Session, phone):
         user = get_object(User, db_session, User.phone == phone)
         if not user:
-            raise HTTPError(200, "Unable to authenticate User", message="AuthError")
+            raise HTTPError(*AUTHENTICATION_ERROR)
         if not user.is_active:
             raise HTTPError(*USER_IS_NOT_ACTIVE)
         return user
@@ -37,13 +37,14 @@ class AuthBackend(object):
             if username == user_obj.phone and user_obj.check_password(password):
                 user = user_serializer.dump(user_obj)
                 return user
-        return None
+        raise HTTPError(*AUTHENTICATION_ERROR)
+        # return None
 
     def get_user(self, user_id):
         user = self.get_user_by_id(pk=user_id)
         if user_id == user['id']:
             return {k: user[k] for k in user.keys() if k != 'password'}
-        return None
+        raise HTTPError(*AUTHENTICATION_ERROR)
 
 
 jwt_plugin = JWTProviderPlugin(
