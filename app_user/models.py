@@ -2,9 +2,11 @@
 import datetime
 
 from sqlalchemy.orm import relationship
-from ICECREAM.db_initializer import Base, ResourceMixin
+from ICECREAM.db_initializer import Base
 from sqlalchemy import Column, String, ForeignKey, Boolean, Integer, DateTime
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from ICECREAM.models.basemodels import ResourceMixin
 
 
 class Person(Base):
@@ -36,6 +38,7 @@ class User(ResourceMixin, Base):
     person_id = Column(Integer, ForeignKey('persons.id'))
 
     person = relationship(Person, primaryjoin=person_id == Person.id, lazy=True)
+
     # movie_raters = relationship(MovieRater, back_populates="user")
 
     @property
