@@ -1,4 +1,6 @@
 import bottle
+from functools import wraps
+from time import time
 from bottle import request
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -6,6 +8,18 @@ from ICECREAM.db_initializer import get_db_session
 import logging
 
 logger = logging.getLogger()
+
+
+def timing(f):
+    @wraps(f)
+    def wrap(*args, **kw):
+        ts = time()
+        result = f(*args, **kw)
+        te = time()
+        logger.info('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te - ts))
+        return result
+
+    return wrap
 
 
 def pass_data(func):
@@ -28,6 +42,7 @@ def pass_data(func):
     return wrapper
 
 
+@bottle.route('/<:re:.*>', method='OPTIONS')
 def cors(fn):
     def _cors(*args, **kwargs):
         # set CORS headers
