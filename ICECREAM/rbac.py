@@ -86,4 +86,4 @@ def validate_permission(rule: str, db_session: Session):
     identity = get_user_identity(db_session)
     if identity.check_permission(rule, User):
         return True
-    return HTTPError(status=403, body="Access_denied")
+    raise HTTPError(status=403, body="Access_denied")
