@@ -3,7 +3,7 @@ from marshmallow import ValidationError
 
 from app_tutorial.models import Student, Class, People
 from app_tutorial.schemas import StudentSchema, student_serializer, class_serializer, students_serializer, PeopleSchema
-from ICECREAM.models.query import get_or_create
+from ICECREAM.models.query import get_or_create, get_nested_data
 
 
 def get_students(db_session):
@@ -21,7 +21,7 @@ def new_student(db_session, data):
         student_serializer.load(data)
         student = Student()
         student.id = data['id']
-        student_instance = get_or_create(Student, db_session, id=student.id)
+        student_instance = get_or_create(Student, db_session, Student.id == student.id)
         if student_instance.id is None:
             db_session.add(student)
             db_session.commit()
@@ -43,17 +43,19 @@ def new_class(db_session, data):
 
     class_room = Class()
     class_room.id = data['id']
-    class_room_instance = get_or_create(Class, db_session, id=class_room.id)
+    class_room_instance = get_or_create(Class, db_session, Class.id == class_room.id)
     if class_room_instance.id is None:
         db_session.add(class_room)
 
     students = data['students']
     for student in students:
-        student_instance = get_or_create(Student, db_session, id=student['id'])
+        student_instance = get_or_create(Student, db_session, Student.id == student['id'])
         if student_instance.id is None:
             student_instance.id = student['id']
             class_room_instance.students.append(student_instance)
             db_session.add(student_instance)
+    # or instead all of above codes you can use this line to collect nested data by id's
+    # class_room_instance.students = get_nested_data(Student, data.get("students"), db_session)
     db_session.add(class_room_instance)
     db_session.commit()
     serialized_class = class_serializer.dump(class_room)
