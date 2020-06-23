@@ -4,7 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from ICECREAM.http import HTTPError
 
 
-def get_nested_data(model, data, db_session):
+def get_nested_list_data(model, data, db_session):
     if not data:
         return []
     _list_object = []
@@ -14,6 +14,13 @@ def get_nested_data(model, data, db_session):
             _list_object.append(actor_obj)
         return _list_object
     HTTPError(400, "Model_should_has_id")
+
+
+def get_nested_data(model, data, db_session):
+    if data is not None:
+        source_obj = get_object_or_404(model, db_session, model.id == data["id"])
+        return source_obj.id
+    return None
 
 
 def get_or_create(model, session, *args, **kwargs):

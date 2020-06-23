@@ -62,11 +62,12 @@ def db_handler(func):
     def wrapper(*args, **kwargs):
         session = get_db_session()
         try:
-            session.expire_on_commit = False
+            session.expire_on_commit = True
             kwargs['db_session'] = session
             rtn = func(*args, **kwargs)
+            kwargs['db_session'].commit()
             return rtn
-        except(SQLAlchemyError, bottle.HTTPError):
+        except(SQLAlchemyError, bottle.HTTPError, Exception):
             session.rollback()
             raise
 

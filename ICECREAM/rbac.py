@@ -30,6 +30,10 @@ class ACLHandler(object):
             data = list(_reader)
             return data
 
+    def add_resource(self, Resource):
+        self.__acl.add_resource(Resource)
+        self.__resource = Resource
+
     def __set_roles(self, ):
         roles = self._read_file(roles_path)[0]
         for role in roles:
@@ -74,16 +78,17 @@ def get_roles_list():
     return roles[0]
 
 
-def get_user_identity(db_session):
+def get_user_identity(db_session, model):
     user = bottle.request.get_user()
     current_user = db_session.query(User).get(user['id'])
-    aclh = ACLHandler(Resource=User)
+    aclh = ACLHandler(Resource=model)
+    aclh.add_resource(model)
     identity = aclh.get_identity(current_user)
     return identity
 
 
-def validate_permission(rule: str, db_session: Session):
-    identity = get_user_identity(db_session)
-    if identity.check_permission(rule, User):
+def validate_permission(rule: str, db_session: Session, model):
+    identity = get_user_identity(db_session, model)
+    if identity.check_permission(rule, model):
         return True
     raise HTTPError(status=403, body="Access_denied")
