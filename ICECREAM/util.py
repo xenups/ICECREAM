@@ -1,6 +1,9 @@
 import secrets
+from distutils.util import strtobool
 
 from bottle import request
+
+from ICECREAM.http import HTTPError
 
 
 class Singleton(type):
@@ -22,4 +25,13 @@ def strip_path():
 
 def get_media_link(file_name):
     host = request.get_header('host')
-    return 'http://{}/api/media/{}'.format(host, file_name)
+    # for production
+    return 'http://{}/api/statics/media/{}'.format(host, file_name)
+    # return 'http://{}:8080/api/media/{}'.format(host, file_name)
+
+
+def str_to_bool(val):
+    try:
+        return strtobool(val)
+    except Exception as e:
+        return None
