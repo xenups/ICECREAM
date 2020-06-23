@@ -158,7 +158,7 @@ class MongoFilter(object):
 
     def filter(self):
         try:
-            result = self.model.mongoquery(self.query).query(**self.mongo_filter_query).end().all()
+            result = self.model.mongoquery(self.query).query(**self.mongo_filter_query).end()
             return result
         except Exception as e:
             raise HTTPError(403, e.args)
