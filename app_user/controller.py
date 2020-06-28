@@ -28,7 +28,6 @@ def get_current_user(db_session: Session):
 
 
 def get_users(db_session: Session):
-    validate_permission("get_users", db_session)
     users = db_session.query(User).order_by(User.created_date)
     result = Paginate(users, users_serializer)
     return HTTPResponse(status=200, body=result)
