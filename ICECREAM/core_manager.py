@@ -11,6 +11,7 @@ from sqlalchemy_searchable import sync_trigger
 
 from .db_initializer import db
 from .filters import SmartFiltersPlugin
+from .plugin import DBInjectorPlugin
 from .util import strip_path
 from .wrappers import db_handler, cors
 from ICECREAM.baseapp import BaseApp
@@ -160,6 +161,7 @@ class Core(object):
             self.__initialize_log()
             self.__initialize_filters()
             self.__init_cors()
+            self.__init_inject_db()
             self.__initialize_sentry_log()
             self.__register_routers()
             # self.__initialize_throttle()
@@ -177,6 +179,10 @@ class Core(object):
 
     def __init_cors(self):
         self.core.install(cors)
+
+    def __init_inject_db(self):
+        __db_plugin = DBInjectorPlugin()
+        self.core.install(__db_plugin)
 
     def __route_homepage(self, ):
         if DEBUG:

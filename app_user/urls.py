@@ -9,14 +9,15 @@ from ICECREAM.wrappers import db_handler, pass_data, debug
 
 class USERApp(BaseApp):
     def call_router(self, core):
-        core.route('/api/users/<pk>', 'GET', get_user, apply=[db_handler, debug, jwt_auth_required])
-        core.route('/api/users', 'GET', get_users, apply=[db_handler, debug, jwt_auth_required])
-        core.route('/api/users/current', 'GET', get_current_user, apply=[db_handler, debug, jwt_auth_required])
-        core.route('/api/users/<pk>', 'PATCH', edit_user, apply=[pass_data, db_handler, jwt_auth_required])
-        core.route('/api/user', 'POST', create_user, apply=[pass_data, db_handler, jwt_auth_required])
+        core.route('/api/users/<pk>', 'GET', get_user, apply=[debug, jwt_auth_required])
+        core.route('/api/users', 'GET', get_users, apply=[])
+        core.route('/api/users/current', 'GET', get_current_user, apply=[debug, jwt_auth_required])
+        core.route('/api/users/<pk>', 'PATCH', edit_user, apply=[pass_data, jwt_auth_required])
+        core.route('/api/user', 'POST', create_user, apply=[pass_data, jwt_auth_required])
         core.route('/api/user/activate/<pk>', 'PATCH', activate_user, apply=[pass_data, db_handler, jwt_auth_required])
-        core.route('/api/user/image', 'POST', add_person_image, apply=[pass_data, db_handler, jwt_auth_required])
-        core.route('/api/user/image/<pk>', 'DELETE', remove_person_image, apply=[pass_data, db_handler, jwt_auth_required])
+        core.route('/api/user/image', 'POST', add_person_image, apply=[pass_data, jwt_auth_required])
+        core.route('/api/user/image/<pk>', 'DELETE', remove_person_image,
+                   apply=[pass_data, db_handler, jwt_auth_required])
         core.route('/api/user/forget-password', 'POST', forget_pass, apply=[pass_data, db_handler])
         core.route('/api/user/reset-password', 'PATCH', reset_pass, apply=[pass_data, db_handler])
         core.route('/api/user/change-password', 'PATCH', change_password,
