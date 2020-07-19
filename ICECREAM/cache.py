@@ -8,6 +8,8 @@ from .util import Singleton
 
 logger = logging.getLogger()
 
+CHUNK_SIZE = 5000
+
 
 class BaseRedisConnector(Redis):
     def __init__(self):
@@ -50,3 +52,12 @@ class RedisCache(RedisConnector):
             __json_data = json.dumps({custom_value_name: str(value)})
             __cache_status = self.set(key, __json_data, ex=ttl)
             return __cache_status
+
+    def clear_ns(self, ns):
+        cursor = '0'
+        ns_keys = ns + '*'
+        while cursor != 0:
+            cursor, keys = self.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
+            if keys:
+                self.delete(*keys)
+        return True
