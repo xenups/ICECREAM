@@ -4,6 +4,7 @@ from time import time
 from bottle import request
 from sqlalchemy.exc import SQLAlchemyError
 
+from ICECREAM.cache import RedisCache
 from ICECREAM.db_initializer import get_db_session
 import logging
 
@@ -62,7 +63,7 @@ def db_handler(func):
     def wrapper(*args, **kwargs):
         session = get_db_session()
         try:
-            session.expire_on_commit = True
+            session.expire_on_commit = False
             kwargs['db_session'] = session
             rtn = func(*args, **kwargs)
             kwargs['db_session'].commit()
@@ -82,3 +83,14 @@ def debug(fn):
         return result
 
     return wrapper
+
+
+def clear_cache(cached_url):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            redis = RedisCache()
+            redis.clear_ns(ns=cached_url)
+            result = function(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
