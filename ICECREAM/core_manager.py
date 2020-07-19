@@ -9,6 +9,7 @@ from pydoc import locate
 from getpass import getpass
 from sqlalchemy_searchable import sync_trigger
 
+from .api_cache import CachePlugin
 from .db_initializer import db
 from .filters import SmartFiltersPlugin
 from .plugin import DBInjectorPlugin
@@ -22,7 +23,7 @@ from bottle import Bottle, run, static_file, BaseTemplate
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from app_user.schemas import user_serializer, superuser_serializer
-from settings import default_address, apps, sentry_dsn, DEBUG, media_path, searches_index
+from settings import default_address, apps, sentry_dsn, DEBUG, media_path, searches_index, redis_cache
 
 
 def get_default_address():
@@ -158,6 +159,7 @@ class Core(object):
             self.__route_homepage()
             self.__init_jwt()
             self.__route_file_server()
+            self.__init_api_cache()
             self.__initialize_log()
             self.__initialize_filters()
             self.__init_cors()
@@ -183,6 +185,11 @@ class Core(object):
     def __init_inject_db(self):
         __db_plugin = DBInjectorPlugin()
         self.core.install(__db_plugin)
+
+    def __init_api_cache(self):
+        cache = CachePlugin('url_cache', 'redis', host=redis_cache['redis_host'], port=redis_cache['redis_port'],
+                            password=redis_cache['redis_pass'])
+        self.core.install(cache)
 
     def __route_homepage(self, ):
         if DEBUG:
