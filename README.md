@@ -31,7 +31,17 @@ To generate an .env file these values are required:
 | sentry_dsn            | sentry address (logging tool), it can be|
 | media_files            | static media folder|
 
-already icecream is working with postgres
+already ice-cream is working with postgres
+
+Now you need to check that your website is running. Open your browser (Firefox, Chrome, Safari, Internet Explorer or whatever you use) and enter this address:
+
+browser
+http://127.0.0.1:8000/api
+
+Congratulations! You've just created your first website and run it using a web server!
+![icecream](https://user-images.githubusercontent.com/18069620/92040998-a654c880-ed8c-11ea-87c8-340306fbbba8.png)
+
+
 **to create super user:**
 
     python manage.py createsuperuser
