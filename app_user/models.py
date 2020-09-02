@@ -39,8 +39,6 @@ class User(ResourceMixin, Base):
 
     person = relationship(Person, primaryjoin=person_id == Person.id, lazy=True)
 
-    # movie_raters = relationship(MovieRater, back_populates="user")
-
     @property
     def get_phone(self):
         return self.phone

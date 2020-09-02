@@ -1,5 +1,3 @@
-from marshmallow import ValidationError
-
 from ICECREAM.http import HTTPResponse
 from ICECREAM.models.query import get_or_create
 from ICECREAM.validators import validate_data

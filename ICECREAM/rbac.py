@@ -92,3 +92,11 @@ def validate_permission(rule: str, db_session: Session, model):
     if identity.check_permission(rule, model):
         return True
     raise HTTPError(status=403, body="Access_denied")
+
+
+def validate_permissions(rules: [], db_session: Session, model):
+    identity = get_user_identity(db_session, model)
+    for rule in rules:
+        if not identity.check_permission(rule, model):
+            raise HTTPError(status=403, body="Access_denied")
+    return True

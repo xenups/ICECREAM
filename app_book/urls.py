@@ -1,3 +1,4 @@
+from bottle_jwt2 import jwt_auth_required
 from ICECREAM.baseapp import BaseApp
 from ICECREAM.wrappers import pass_data
 from app_book.controller import get_authors, new_quote, get_author, get_quotes, get_quote, delete_quote
@@ -5,7 +6,7 @@ from app_book.controller import get_authors, new_quote, get_author, get_quotes, 
 
 class BookApp(BaseApp):
     def call_router(self, core):
-        core.route('/getauthors', 'GET', get_authors, )
+        core.route('/getauthors', 'GET', get_authors, apply=[jwt_auth_required])
         core.route('/addquote', 'POST', new_quote, apply=[pass_data])
         core.route('/getauthor/<pk>', 'GET', get_author)
         core.route('/getquotes', 'GET', get_quotes)
