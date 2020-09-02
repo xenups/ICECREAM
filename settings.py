@@ -17,8 +17,6 @@ searches_index = [
 apps = [
     'app_book.urls.BookApp',
     'app_foo.urls.FOOApp',
-    'app_tutorial.urls.ClassApp',
-    'app_signup.urls.SignUpApp',
     'app_user.urls.USERApp'
 ]
 rules_file = os.getenv("rules_file")
@@ -42,12 +40,3 @@ database = {
 project_secret = os.getenv('project_secret')
 jwt_ttl = os.getenv('jwt_ttl')
 sentry_dsn = os.getenv('sentry_dsn')
-
-sms = {
-    'sms_token_url': os.getenv('sms_token_url'),
-    'sms_security_key': os.getenv('sms_security_key'),
-    'sms_api_key': os.getenv('sms_api_key'),
-    'sms_timeout': os.getenv('sms_timeout'),
-    'sms_send_url': os.getenv('sms_send_url'),
-    'sms_line_no': os.getenv('sms_line_no'),
-}
