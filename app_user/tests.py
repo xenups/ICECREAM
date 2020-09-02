@@ -28,10 +28,6 @@ def login_user(phone, password):
 
 
 class TestFunctions(unittest.TestCase):
-    # def test_register_user_without_permission(self):
-    #     response = register_user(phone="09123456789", password="test", roles=["admin"])
-    #     self.assertEqual(403, response.status_code)
-
     def test_login(self):
         response = login_user(phone="admin", password="admin")
         data = json.loads(response.json)

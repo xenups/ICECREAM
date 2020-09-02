@@ -2,7 +2,7 @@
 from app_user.models import PersonImage
 from ICECREAM.util import get_media_link
 from ICECREAM.rbac import get_roles_list
-from marshmallow import Schema, fields, validate, EXCLUDE, ValidationError
+from marshmallow import Schema, fields, validate, ValidationError
 
 
 class SuperPersonSchema(Schema):
@@ -60,8 +60,6 @@ class LoginSchema(Schema):
 
 
 class UserSchema(Schema):
-    # password_strength_validator = [
-    #     validate.Regexp("/^(?=(?:[^A-Z]*[A-Z]){2})(?=(?:[^0-9]*[0-9]){2}).{8,}$/", 'CaSu4Li8'), ]
     person = fields.Nested(PersonSchema)
     name = fields.String(required=True)
     phone = fields.String(required=True, validate=[validate.Length(equal=11)])
@@ -70,22 +68,6 @@ class UserSchema(Schema):
 
     class Meta:
         fields = ('id', 'phone', 'password', 'person', 'roles')
-
-
-class ForgetPasswordSMSSchema(Schema):
-    phone = fields.String(required=True, validate=[validate.Length(equal=11)])
-
-    class Meta:
-        fields = ('phone',)
-
-
-class ResetPasswordSMS(Schema):
-    phone = fields.String(required=True, validate=[validate.Length(equal=11)])
-    password = fields.Str(required=True, validate=[validate.Length(min=6, max=36)], load_only=True)
-    token = fields.String(required=True)
-
-    class Meta:
-        fields = ('phone', 'password', 'token')
 
 
 class ChangePassword(Schema):
@@ -110,7 +92,5 @@ user_edit_serializer = UserSchema(only=('id', 'phone', 'password', 'person'))
 set_role_serializer = RoleSchema(only=('roles',))
 person_serializer = PersonSchema()
 users_serializer = UserSchema(many=True, only=('id', 'phone', 'person', 'roles'))
-forget_pass_serializer = ForgetPasswordSMSSchema(only=('phone',))
-reset_password_serializer = ResetPasswordSMS()
 person_image_serializer = PersonImageSchema()
 change_password_serializer = ChangePassword(only=('old_password', 'password'))
