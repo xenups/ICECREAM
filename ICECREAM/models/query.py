@@ -23,21 +23,18 @@ def get_nested_data(model, data, db_session):
     return None
 
 
-def get_or_create(model, session, *args, **kwargs):
+def get_or_create(model, session: Session, *args, **kwargs):
+    model_object = session.query(model).filter(*args, **kwargs).first()
+    if model_object is not None:
+        return model_object
     try:
-        # basically check the obj from the db, this syntax might be wrong
+        instance = model(**kwargs)
+        session.flush()
+    except Exception as msg:
+        session.rollback()
+        raise (msg)
 
-        model_object = session.query(model).filter(*args, **kwargs).first()
-        if model_object is not None:
-            return model_object
-        model_object = model(**kwargs)
-        return model_object
-
-    except Exception as e:  # or whatever error/exception it is on SQLA
-        model_object = model()
-        print("exception is happened")
-        # do it here if you want to save the obj to the db
-        return model_object
+    return instance
 
 
 def get_object(model, session, *args, **kwargs):
@@ -57,6 +54,7 @@ def get_object_or_404(model, session, *args, **kwargs):
     does not exist.
     """
     model_object = session.query(model).filter(*args, **kwargs).first()
+    session.commit()
     if model_object:
         return model_object
     raise HTTPError(404, body=model().__class__.__name__ + "_Not_Found")
