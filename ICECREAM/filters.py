@@ -150,6 +150,12 @@ def get_params_from_url(params: list):
     return fields_dict
 
 
+def get_query_from_url(query: str):
+    filter_query = bottle.request.query[query]
+    query = ast.literal_eval(filter_query.encode("ISO-8859-1").decode("utf-8"))
+    return query
+
+
 class MongoFilter(object):
     def __init__(self, model, query, mongo_filter_query):
         self.query = query
