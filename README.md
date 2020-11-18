@@ -66,6 +66,15 @@ Congratulations! You've just created your first website and run it using a web s
 
     alembic upgrade head
 
+#### **Authentication**:
+Unlike some more typical uses of JWTs, this module only generates authentication tokens that will verify the user who is requesting one of your ICECREAM protected API resources. The actual request parameters themselves are not included in the JWT claims which means they are not signed and may be tampered with. To implement user authentication in your application, you need to override the AuthBackend() class in authentication.py in users folder.
+to obtaining token and refresh token it need to get it from route which allocated in JWTProviderPlugin
+
+To using authentication needs to using . Add the following URL pattern:
+```
+    core.route('/users', 'GET', get_users, apply=[jwt_auth_required])
+```
+
 
 #### **File serving:**
 **To serving files first  need to create a static folder in root of project:**
