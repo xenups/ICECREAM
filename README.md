@@ -106,6 +106,21 @@ and pass the current user to check permission as bellow:
 
     aclh = ACLHandler(Resource=Message)
     identity = aclh.get_identity(current_user)
+### **Caching in ICECREAM**
+Caching refers to storing the server response in the client itself, so that a client need not make a server request for the same resource again and again.ICECREAM using Redis to do caching , Redis has more sophisticated mechanisms as it has been described as a "data structure store", thus making it more powerful and flexible. Redis also has a larger advantage because you can store data in any form. In the ICECREAM When the function runs, it checks if the view key is in the cache. If the key exists, then the app retrieves the data from the cache and returns it. If not, ICECREAM queries the database and then stashes the result in the cache with the view key. The first time this function is run, ICECREAM will query the database and render the template, and then will also make a network call to Redis to store the data in the cache. Each subsequent call to the function will completely bypass the database and business logic and will query the Redis cache.
+To cache view functions you will use the cache_for() decorator.
+
+```
+    @cache_for(24 * 60, cache_key_func='full_path')
+    def get_user(pk, db_session):
+        user = get_object_or_404(User, db_session, User.id == pk)
+        result = user_serializer.dump(user)
+        return HTTPResponse(status=200, body=result)
+```
+or you can pass the decorator in router
+```
+    core.route('/users', 'GET', get_users,apply=[cache_for(24 * 60, cache_key_func='full_path')])
+```
     
 ### **Full text search in ICECREAM**
 
