@@ -15,7 +15,7 @@ from ICECREAM.db_initializer import Base, get_database_uri
 def load_all(module_name):
     import os
     try:
-        dircts = []
+        directories = []
         path = os.getcwd()
         for root, dirs, files in os.walk(path):
             for file in files:
@@ -24,13 +24,13 @@ def load_all(module_name):
                     filepath = os.path.join(root, file)
                     if 'env' not in filepath:
                         dir_address = str(os.path.dirname(filepath))
-                        dirname = dir_address.split('/')[-1]
-                        if dirname != 'models':
-                            dircts.append(dirname)
+                        directory_name = dir_address.split(str(os.sep))[-1]
+                        if directory_name != 'models':
+                            directories.append(directory_name)
 
-        for m in dircts:
-            print(m)
-            __import__('{}.{}'.format(m, module_name),
+        for app in directories:
+            print(app)
+            __import__('{}.{}'.format(app, module_name),
                        fromlist=['*'])
     except Exception as e:
         print(e)
