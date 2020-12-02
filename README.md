@@ -8,7 +8,8 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
 
 
 **Quick start ICE CREAM with docker-compose**
-
+    
+    rename .env_example to .env
     git clone https://github.com/xenups/ICECREAM.git
     docker-compose up
      
