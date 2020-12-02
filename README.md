@@ -55,12 +55,6 @@ Congratulations! You've just created your first website and run it using a web s
     then register app in settings.py
 
 #### **Migration Commands:**
-**To initialize migration:** 
-
-    alembic init alembic
-    python manage.py makealembic
-    
-
 **To make migration:**
 
     alembic revision --autogenerate -m "Message"
