@@ -1,7 +1,7 @@
 from datetime import datetime
 from ICECREAM.db_initializer import Base
-from sqlalchemy.orm import relationship, backref, sessionmaker
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, func, ForeignKey, create_engine, MetaData
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 
 class Author(Base):

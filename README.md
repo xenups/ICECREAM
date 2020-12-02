@@ -1,8 +1,22 @@
-# **ICE CREAM Instructions** 
+# ICE CREAM
+
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Requirements](https://img.shields.io/badge/Requirements-See%20Here-orange)](https://github.com/xenups/bottle_restfool/blob/master/requirements.txt)
 
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
-ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project. every controller has access to each to reduce complex business logic.
+ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project.
 
+
+**Quick start ICE CREAM with docker-compose**
+   
+    git clone https://github.com/xenups/ICECREAM.git
+   rename .env_example to .env and then run:
+   
+    docker-compose up
+     
+and access to http://localhost:8000
+
+  
 **To run bottle builtin server with commands:**
     
     python manage.py runserver 
@@ -52,12 +66,6 @@ Congratulations! You've just created your first website and run it using a web s
     then register app in settings.py
 
 #### **Migration Commands:**
-**To initialize migration:** 
-
-    alembic init alembic
-    python manage.py makealembic
-    
-
 **To make migration:**
 
     alembic revision --autogenerate -m "Message"
