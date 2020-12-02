@@ -4,8 +4,17 @@
 [![Requirements](https://img.shields.io/badge/Requirements-See%20Here-orange)](https://github.com/xenups/bottle_restfool/blob/master/requirements.txt)
 
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
-ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project. every controller has access to each to reduce complex business logic.
+ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project.
 
+
+**Quick start ICE CREAM with docker-compose**
+
+    git clone https://github.com/xenups/ICECREAM.git
+    docker-compose up
+     
+and access to http://localhost:8000
+
+  
 **To run bottle builtin server with commands:**
     
     python manage.py runserver 
