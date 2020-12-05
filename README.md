@@ -14,7 +14,7 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
    
     docker-compose up
      
-and access to http://localhost:8000
+and access to http://localhost:8000/api
 
   
 **To run bottle builtin server with commands:**
