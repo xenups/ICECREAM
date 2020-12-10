@@ -27,4 +27,5 @@ class RoomSchema(Schema):
 
 
 room_serializer = RoomSchema()
+rooms_serializer = RoomSchema(many=True)
 room_image_serializer = RoomImageSchema()
