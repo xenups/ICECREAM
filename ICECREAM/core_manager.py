@@ -166,12 +166,20 @@ class Core(object):
             self.__init_inject_db()
             self.__initialize_sentry_log()
             self.__register_routers()
+            self.__route_404_error()
             # self.__initialize_throttle()
             logging.info("ICECREAM initialized")
 
         except Exception as e:
             logging.error("icecream core cannot initialize")
             raise ValueError(e)
+
+    def __route_404_error(self):
+        print("nothing")
+
+        @self.core.error(404)
+        def custom_page(error):
+            return "nothing"
 
     def __init_jwt(self):
         if jwt_plugin.auth_endpoint:
