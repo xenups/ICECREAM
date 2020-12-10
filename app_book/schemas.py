@@ -20,5 +20,6 @@ class QuoteSchema(Schema):
 
 
 author_serializer = AuthorSchema()
+authors_serializer = AuthorSchema(many=True)
 quote_serializer = QuoteSchema()
 quotes_serializer = QuoteSchema(many=True, only=('id', 'content'))

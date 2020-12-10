@@ -1,14 +1,13 @@
 from ICECREAM.http import HTTPResponse
-from ICECREAM.models.query import get_or_create
+from ICECREAM.models.query import get_or_create, get_object_or_404
 from ICECREAM.validators import validate_data
 from app_book.models import Author, Quote
-from app_book.schemas import AuthorSchema, quote_serializer, author_serializer, quotes_serializer
+from app_book.schemas import quote_serializer, author_serializer, quotes_serializer, authors_serializer
 
 
 def get_authors(db_session):
     authors = db_session.query(Author).all()
-    serializer = AuthorSchema(many=True)
-    result = serializer.dump(authors)
+    result = authors_serializer.dump(authors)
     return HTTPResponse(status=200, body=result)
 
 
@@ -36,7 +35,7 @@ def new_quote(data, db_session):
 
 
 def get_author(pk, db_session):
-    author = db_session.query(Author).get(pk)
+    author = get_object_or_404(Author, db_session, Author.id == pk)
     author_result = author_serializer.dump(author)
     quotes_result = quotes_serializer.dump(author.quotes.all())
     author_result.update({"quotes": quotes_result})
@@ -50,7 +49,7 @@ def get_quotes(db_session):
 
 
 def get_quote(pk, db_session):
-    quote = db_session.query(Quote).get(pk)
+    quote = get_object_or_404(Quote, db_session, Quote.id == pk)
     result = quote_serializer.dump(quote)
     return HTTPResponse(status=200, body=result)
 

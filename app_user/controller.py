@@ -1,9 +1,9 @@
 "ICECREAM"
 import bottle
-from distutils.util import strtobool
 from sqlalchemy.orm import Session
 from ICECREAM.file_handler import upload
 from ICECREAM.paginator import Paginate
+from ICECREAM.util import str_to_bool
 from ICECREAM.validators import validate_data
 from app_user.messages import ACTIVATED_MSG, DEACTIVATED_MSG, DELETE_IMG, PASSWORD_CHANGED, OLD_PASSWORD_NOT_VALID
 from app_user.models import User, Person, PersonImage
@@ -47,7 +47,7 @@ def activate_user(pk, db_session: Session, data):
     # validate_permission("activate_user", db_session, User)
     activation = data["activation"]
     user = get_object_or_404(User, db_session, User.id == pk)
-    user.is_active = strtobool(activation)
+    user.is_active = str_to_bool(activation)
     db_session.commit()
     if user.is_active:
         return HTTPResponse(*ACTIVATED_MSG)
