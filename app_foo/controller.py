@@ -2,6 +2,7 @@
 from ICECREAM import status
 from sqlalchemy.orm import Session
 from ICECREAM.http import HTTPResponse
+from ICECREAM.models.query import get_object_or_404
 from ICECREAM.paginator import Paginate
 from ICECREAM.file_handler import upload
 from app_foo.models import Room, RoomImage
@@ -16,12 +17,18 @@ def get_rooms(db_session):
     return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
+def get_room(pk, db_session: Session):
+    room = get_object_or_404(Room, db_session, Room.id == pk)
+    result = room_serializer.dump(room)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
+
+
 def filter_rooms(db_session: Session):
     # /rooms/filter?query={"sort":"name-",}
     rooms_query = db_session.query(Room)
     query = get_query_from_url("query")
     filtered_query = MongoFilter(Room, rooms_query, query).filter()
-    result = Paginate(filtered_query, room_serializer)
+    result = Paginate(filtered_query, rooms_serializer)
     return HTTPResponse(status=200, body=result)
 
 
