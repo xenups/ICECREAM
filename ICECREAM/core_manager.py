@@ -175,11 +175,9 @@ class Core(object):
             raise ValueError(e)
 
     def __route_404_error(self):
-        print("nothing")
-
         @self.core.error(404)
         def custom_page(error):
-            return "nothing"
+            return "ICECREAM didn't find anything"
 
     def __init_jwt(self):
         if jwt_plugin.auth_endpoint:
