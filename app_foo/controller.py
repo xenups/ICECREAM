@@ -1,5 +1,7 @@
 "ICECREAM"
 import logging
+
+from ICECREAM import status
 from ICECREAM.file_handler import upload
 from ICECREAM.http import HTTPResponse
 from ICECREAM.validators import validate_data
@@ -15,7 +17,7 @@ def get_rooms(db_session):
     rooms = db_session.query(Room).all()
     serializer = RoomSchema(many=True)
     result = serializer.dump(rooms)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def new_room(db_session, data):
@@ -25,7 +27,7 @@ def new_room(db_session, data):
     db_session.add(room)
     db_session.commit()
     result = room_serializer.dump(db_session.query(Room).get(room.id))
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def add_room_image(db_session, data):
@@ -37,4 +39,4 @@ def add_room_image(db_session, data):
     db_session.commit()
     room_image = db_session.query(RoomImage).get(room_image.id)
     result = room_image_serializer.dump(room_image)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)

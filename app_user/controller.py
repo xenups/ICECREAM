@@ -1,6 +1,8 @@
 "ICECREAM"
 import bottle
 from sqlalchemy.orm import Session
+
+from ICECREAM import status
 from ICECREAM.file_handler import upload
 from ICECREAM.paginator import Paginate
 from ICECREAM.util import str_to_bool
@@ -18,19 +20,19 @@ def get_current_user(db_session: Session):
     req_user_json = bottle.request.get_user()
     current_user = db_session.query(User).get(req_user_json['id'])
     result = user_serializer.dump(current_user)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def get_users(db_session: Session):
     users = db_session.query(User).order_by(User.created_date)
     result = Paginate(users, users_serializer)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def get_user(pk, db_session):
     user = get_object_or_404(User, db_session, User.id == pk)
     result = user_serializer.dump(user)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def change_password(db_session, data):
@@ -72,7 +74,7 @@ def create_user(db_session: Session, data):
     db_session.add(user)
     db_session.commit()
     result = user_serializer.dump(db_session.query(User).get(user.id))
-    return HTTPResponse(status=201, body=result)
+    return HTTPResponse(status=status.HTTP_201_CREATED, body=result)
 
 
 def edit_user(pk, db_session: Session, data):
@@ -86,7 +88,7 @@ def edit_user(pk, db_session: Session, data):
     user.username = data['phone']
     db_session.commit()
     result = user_serializer.dump(db_session.query(User).get(user.id))
-    return HTTPResponse(status=201, body=result)
+    return HTTPResponse(status=status.HTTP_201_CREATED, body=result)
 
 
 def add_person_image(db_session: Session, data):
@@ -100,7 +102,7 @@ def add_person_image(db_session: Session, data):
     db_session.commit()
     result = db_session.query(PersonImage).get(person_image.id)
     result = person_image_serializer.dump(result)
-    return HTTPResponse(status=200, body=result)
+    return HTTPResponse(status=status.HTTP_200_OK, body=result)
 
 
 def remove_person_image(pk, db_session: Session):
@@ -117,14 +119,14 @@ def set_user_role(pk, db_session: Session, data):
     user.set_roles(data['roles'])
     db_session.commit()
     result = user_serializer.dump(db_session.query(User).get(user.id))
-    return HTTPResponse(status=201, body=result)
+    return HTTPResponse(status=status.HTTP_201_CREATED, body=result)
 
 
 def get_rules(db_session: Session):
     req_user_json = bottle.request.get_user()
     current_user = db_session.query(User).get(req_user_json['id'])
-    return HTTPResponse(status=200, body=get_rules_json(current_user), message="rules")
+    return HTTPResponse(status=status.HTTP_200_OK, body=get_rules_json(current_user), message="rules")
 
 
 def get_roles():
-    return HTTPResponse(status=200, body=get_roles_json())
+    return HTTPResponse(status=status.HTTP_200_OK, body=get_roles_json())
