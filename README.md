@@ -151,7 +151,7 @@ or you can pass the decorator in router
     core.route('/users', 'GET', get_users,apply=[cache_for(24 * 60, cache_key_func='full_path')])
 ```
 #  
-### **Relations in ICECREAM **
+### **Relations in ICECREAM**
 ICECREAM is using SQLAlchemy ORM to see how the relation is working
 you can check this gist quickly
 
