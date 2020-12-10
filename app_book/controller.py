@@ -15,19 +15,15 @@ def get_authors(db_session):
 def new_quote(data, db_session):
     validate_data(data=data, serializer=quote_serializer)
     author = data['author']
-
     first = author['first']
     last = author['last']
-
     content = data['content']
 
     author = get_or_create(Author, db_session, Author.first == first, Author.last == last)
-
-    if author is None:
-        author = Author(first, last)
-        db_session.add(author)
+    author.first = first
+    author.last = last
+    db_session.add(author)
     quote = Quote(content, author)
-
     db_session.add(quote)
     db_session.commit()
 
