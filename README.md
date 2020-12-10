@@ -5,8 +5,7 @@
 
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
 ICE-CREAM framework for Bottle designed for simplify building restful api. It is structured such that any part of the core functionality can be customised to suit the needs of your project.
-
-
+# 
 **Quick start ICE CREAM with docker-compose**
    
     git clone https://github.com/xenups/ICECREAM.git
@@ -15,18 +14,18 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
     docker-compose up
      
 and access to http://localhost:8000/api
-
+# 
   
 **To run bottle builtin server with commands:**
     
     python manage.py runserver 
     python manage.py runserver 127.0.0.1:8000
-
+# 
 **To bind icecream to gunicorn:**
     
     gunicorn --workers=2  'manage:wsgi_app()'
 
- 
+#  
 Copy and rename .env_example to .env and change the variable as project needs.
 Or you can add the parameters manually into .env file
 To generate an .env file these values are required:
@@ -40,13 +39,13 @@ To generate an .env file these values are required:
 | db_pass                  | your database password|
 | db_host                  | your database host|
 | db_port                  | your database port|
-| project_secret            | needs for jwt authentication: experimental feature|
+| project_secret            | needs for jwt authentication|
 | jwt_ttl            | jwt time to live|
 | sentry_dsn            | sentry address (logging tool), it can be|
 | media_files            | static media folder|
-
+# 
 already ice-cream is working with postgres
-
+# 
 Now you need to check that your website is running. Open your browser (Firefox, Chrome, Safari, Internet Explorer or whatever you use) and enter this address:
 
 browser
@@ -54,17 +53,17 @@ http://127.0.0.1:8000/api
 
 Congratulations! You've just created your first website and run it using a web server!
 ![icecream](https://user-images.githubusercontent.com/18069620/92040998-a654c880-ed8c-11ea-87c8-340306fbbba8.png)
-
+# 
 
 **to create super user:**
 
     python manage.py createsuperuser
-    
+#     
 **to create new app:**
 
     python manage.py startapp app_name
     then register app in settings.py
-
+# 
 #### **Migration Commands:**
 **To make migration:**
 
@@ -73,7 +72,7 @@ Congratulations! You've just created your first website and run it using a web s
 **To migrate:**
 
     alembic upgrade head
-
+# 
 #### **Authentication**:
 Unlike some more typical uses of JWTs, this module only generates authentication tokens that will verify the user who is requesting one of your ICECREAM protected API resources. The actual request parameters themselves are not included in the JWT claims which means they are not signed and may be tampered with. To implement user authentication in your application, you need to override the AuthBackend() class in authentication.py in users folder.
 to obtaining token and refresh token it need to get it from route which allocated in JWTProviderPlugin
@@ -82,8 +81,23 @@ To using authentication needs to using . Add the following URL pattern:
 ```
     core.route('/users', 'GET', get_users, apply=[jwt_auth_required])
 ```
+# 
+#### **Filtering:**
+ICECREAM is using py-mongosql to apply filters query
+to get query from url need to use this function 
 
+	query = get_query_from_url("query")
 
+then apply query into MongoFilter like what we did in foo_app
+
+ 	filtered_query = MongoFilter(Room, rooms_query, query).filter()
+The following are some quick examples of making filtered GET requests from different types of clients. More complete documentation is in subsequent link. In these examples, each client will filter by instances of the model Room which sorted by name .
+
+	http://127.0.0.1:8000/rooms/filter?query={"sort":"name-",}
+
+This link has more complete versions of these examples.
+#### 	[py-mongosql](https://github.com/kolypto/py-mongosql "py-mongosql")
+# 
 #### **File serving:**
 **To serving files first  need to create a static folder in root of project:**
 
@@ -92,7 +106,7 @@ To using authentication needs to using . Add the following URL pattern:
 **After that register the address in the .env:**
 
     media_files = /statics/media/
-    
+#     
 ### **RBAC in ICECREAM**
 
 #### **Role-based User Access Control**
@@ -120,6 +134,7 @@ and pass the current user to check permission as bellow:
 
     aclh = ACLHandler(Resource=Message)
     identity = aclh.get_identity(current_user)
+# 
 ### **Caching in ICECREAM**
 Caching refers to storing the server response in the client itself, so that a client need not make a server request for the same resource again and again.ICECREAM using Redis to do caching , Redis has more sophisticated mechanisms as it has been described as a "data structure store", thus making it more powerful and flexible. Redis also has a larger advantage because you can store data in any form. In the ICECREAM When the function runs, it checks if the view key is in the cache. If the key exists, then the app retrieves the data from the cache and returns it. If not, ICECREAM queries the database and then stashes the result in the cache with the view key. The first time this function is run, ICECREAM will query the database and render the template, and then will also make a network call to Redis to store the data in the cache. Each subsequent call to the function will completely bypass the database and business logic and will query the Redis cache.
 To cache view functions you will use the cache_for() decorator.
@@ -135,7 +150,14 @@ or you can pass the decorator in router
 ```
     core.route('/users', 'GET', get_users,apply=[cache_for(24 * 60, cache_key_func='full_path')])
 ```
-    
+#  
+### **Relations in ICECREAM **
+ICECREAM is using SQLAlchemy ORM to see how the relation is working
+you can check this gist quickly
+
+[SQLAlchemy basic relationship patterns](https://gist.github.com/xenups/31c81324b3d4db2e57abca868af2f0c2 "SQLAlchemy basic relationship patterns")
+
+# 
 ### **Full text search in ICECREAM**
 
 Full text search is a more advanced way to search a database. Full text search quickly finds all instances of a term (word) in a table without having to scan rows and without having to know which column a term is stored in. Full text search works by using text indexes.
