@@ -1,3 +1,4 @@
+
 # ICE CREAM
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
@@ -15,7 +16,9 @@ ICE-CREAM framework for Bottle designed for simplify building restful api. It is
      
 and access to http://localhost:8000/api
 # 
-  
+# Table of Contents
+-- [Filtering](##### **Filtering:**)
+#   
 **To run bottle builtin server with commands:**
     
     python manage.py runserver 
@@ -151,7 +154,7 @@ or you can pass the decorator in router
     core.route('/users', 'GET', get_users,apply=[cache_for(24 * 60, cache_key_func='full_path')])
 ```
 #  
-### **Relations in ICECREAM**
+### **Relations in ICECREAM **
 ICECREAM is using SQLAlchemy ORM to see how the relation is working
 you can check this gist quickly
 
