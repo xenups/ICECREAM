@@ -13,6 +13,7 @@
 - [Filtering](#filtering)    
 - [RBAC-in-icecream](#rbac-in-icecream)
 - [Caching](#caching-in-icecream)
+- [Relations](#relations-in-icecream)
 - [Full Text Search](#full-text-search-in-icecream)
 
 # ICE CREAM
