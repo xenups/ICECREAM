@@ -1,4 +1,21 @@
 
+  
+## Table of Contents  
+- [Introduction](#ice-cream)  
+- [Quickstart](#quickstart)  
+- [Running builtin server](#builtin-server)  
+- [Binding to gunicorn](#binding-to-gunicorn)  
+- [Env parameters](#env-parameters)  
+- [Welcome Page](#welcome-page)  
+- [Ice-cream commands](#ice-cream-commands)  
+- [Migration commands](#migration-commands)    
+- [Authentication](#authentication)    
+- [Filtering](#filtering)    
+- [RBAC-in-icecream](#rbac-in-icecream)
+- [Caching](#caching-in-icecream)
+- [Relations](#relations-in-icecream)
+- [Full Text Search](#full-text-search-in-icecream)
+
 # ICE CREAM
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
@@ -6,8 +23,8 @@
 
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
 ICE-CREAM framework for Bottle designed to simplify building restful API. It is structured such that any part of the core functionality can be customized to suit the needs of your project.
-# 
-**Quickstart ICE CREAM with docker-compose**
+
+## Quickstart:
    
     git clone https://github.com/xenups/ICECREAM.git
    rename .env_example to .env and then run:
@@ -17,17 +34,19 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
 and access to http://localhost:8000/api
 # 
 
+## Builtin server:
 **To run bottle builtin server with commands:**
     
     python manage.py runserver 
     python manage.py runserver 127.0.0.1:8000
 # 
-
+## Binding to Gunicorn:
 **To bind icecream to gunicorn:**
     
     gunicorn --workers=2  'manage:wsgi_app()'
 
 #  
+## .Env Parameters:
 Copy and rename .env_example to .env and change the variable as project needs.
 Or you can add the parameters manually into the .env file
 To generate a .env file these values are required:
@@ -48,6 +67,7 @@ To generate a .env file these values are required:
 # 
 already ice-cream is working with Postgres
 # 
+## Welcome Page:
 Now you need to check that your website is running. Open your browser (Firefox, Chrome, Safari, Internet Explorer or whatever you use) and enter this address:
 
 browser
@@ -57,16 +77,17 @@ Congratulations! You've just created your first website and run it using a web s
 ![icecream](https://user-images.githubusercontent.com/18069620/92040998-a654c880-ed8c-11ea-87c8-340306fbbba8.png)
 # 
 
-**to create superuser:**
+## ice-cream commands:
+**To create superuser:**
 
     python manage.py createsuperuser
-#     
-**to create new app:**
+
+**To create new app:**
 
     python manage.py startapp app_name
     then register app in settings.py
-# 
-#### **Migration Commands:**
+
+## Migration Commands:
 **To make migration:**
 
     alembic revision --autogenerate -m "Message"
@@ -74,8 +95,8 @@ Congratulations! You've just created your first website and run it using a web s
 **To migrate:**
 
     alembic upgrade head
-# 
-#### **Authentication**:
+
+## Authentication:
 Unlike some more typical uses of JWTs, this module only generates authentication tokens that will verify the user who is requesting one of your ICECREAM protected API resources. The actual request parameters themselves are not included in the JWT claims which means they are not signed and may be tampered with. To implement user authentication in your application, you need to override the AuthBackend() class in authentication.py in the users folder.
 to obtaining token and refresh token it needs to get it from the route allocated in JWTProviderPlugin
 
@@ -84,7 +105,7 @@ To using authentication needs to using . Add the following URL pattern:
     core.route('/users', 'GET', get_users, apply=[jwt_auth_required])
 ```
 # 
-#### **Filtering:**
+## Filtering:
 ICECREAM is using py-mongosql to apply filters query
 to get a query from URL need to use this function 
 
@@ -109,7 +130,7 @@ This link has more complete versions of these examples.
 
     media_files = /statics/media/
 #     
-### **RBAC in ICECREAM**
+## RBAC in ICECREAM:
 
 #### **Role-based User Access Control**
 
@@ -137,7 +158,7 @@ and pass the current user to check permission as bellow:
     aclh = ACLHandler(Resource=Message)
     identity = aclh.get_identity(current_user)
 # 
-### **Caching in ICECREAM**
+## Caching in ICECREAM:
 Caching refers to storing the server response in the client itself so that a client need not make a server request for the same resource again and again.ICECREAM using Redis to do caching, Redis has more sophisticated mechanisms as it has been described as a "data structure store", thus making it more powerful and flexible. Redis also has a larger advantage because you can store data in any form. In the ICECREAM When the function runs, it checks if the view key is in the cache. If the key exists, then the app retrieves the data from the cache and returns it. If not, ICECREAM queries the database and then stashes the result in the cache with the view key. The first time this function is run, ICECREAM will query the database and render the template, and then will also make a network call to Redis to store the data in the cache. Each subsequent call to the function will completely bypass the database and business logic and will query the Redis cache.
 To cache view functions you will use the cache_for(), decorator.
 
@@ -153,14 +174,14 @@ or you can pass the decorator in the router
     core.route('/users', 'GET', get_users,apply=[cache_for(24 * 60, cache_key_func='full_path')])
 ```
 #  
-### **Relations in ICECREAM **
+## Relations in ICECREAM:
 ICECREAM is using SQLAlchemy ORM to see how the relationship is working
 you can check this gist quickly
 
 [SQLAlchemy basic relationship patterns](https://gist.github.com/xenups/31c81324b3d4db2e57abca868af2f0c2 "SQLAlchemy basic relationship patterns")
 
 # 
-### **Full text search in ICECREAM**
+## Full text search in ICECREAM:
 
 Full-text search is a more advanced way to search a database. Full-text search quickly finds all instances of a term (word) in a table without having to scan rows and without having to know which column a term is stored in. Full-text search works by using text indexes.
 to provide full-text search ICECREAM integrated with SQLAlchemy-Searchable, it provides full-text search capabilities for SQLAlchemy models. Currently, it only supports PostgreSQL.
