@@ -1,10 +1,12 @@
+
 ## Table of Contents
-- [Quick Start](#Quickstart ICE CREAM with docker-compose)
+- [Quick Start](#Quickstart)
 - [.env parameters](#.env parameters:)
-- [Run builtin servert](#To run builtin server)
+- [Run builtin server](#To run builtin server)
 - [Binding to gunicorn](#To bind icecream to gunicorn:)
 - [Creating superuser](#to create superuser:)
-- [Creating new app](## to create new app:)
+- [Creating new app](#to create new app:)
+- 
 
 
 
@@ -17,7 +19,7 @@
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
 ICE-CREAM framework for Bottle designed to simplify building restful API. It is structured such that any part of the core functionality can be customized to suit the needs of your project.
 # 
-### Quickstart ICE CREAM with docker-compose
+## Quickstart
    
     git clone https://github.com/xenups/ICECREAM.git
    rename .env_example to .env and then run:
