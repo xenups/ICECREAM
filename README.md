@@ -4,7 +4,7 @@
 - [Introduction](#ice-cream)  
 - [Quickstart](#quickstart)  
 - [Running builtin server](#builtin-server)  
-- [Binding to gunicorn](#gunicorn)  
+- [Binding to gunicorn](#binding-to-gunicorn)  
 - [Env parameters](#env-parameters)  
 - [Welcome Page](#welcome-page)  
 - [Ice-cream commands](#ice-cream-commands)  
