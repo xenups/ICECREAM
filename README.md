@@ -1,6 +1,6 @@
 
 ## Table of Contents
-- [Quick Start](#Quickstart)
+- [Quickstart](#Quickstart)
 - [.env parameters](#.env parameters:)
 - [Run builtin server](#To run builtin server)
 - [Binding to gunicorn](#To bind icecream to gunicorn:)
