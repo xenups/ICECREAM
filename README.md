@@ -1,3 +1,13 @@
+## Table of Contents
+- [Quick Start](#Quickstart ICE CREAM with docker-compose)
+- [.env parameters](#.env parameters:)
+- [Run builtin servert](#To run builtin server)
+- [Binding to gunicorn](#To bind icecream to gunicorn:)
+- [Creating superuser](#to create superuser:)
+- [Creating new app](## to create new app:)
+
+
+
 
 # ICE CREAM
 
@@ -7,7 +17,7 @@
 <img src="https://raw.githubusercontent.com/xenups/bottle_restfool/master/ICECREAM/statics/images/ice.png" width="50" height="50">
 ICE-CREAM framework for Bottle designed to simplify building restful API. It is structured such that any part of the core functionality can be customized to suit the needs of your project.
 # 
-**Quickstart ICE CREAM with docker-compose**
+### Quickstart ICE CREAM with docker-compose
    
     git clone https://github.com/xenups/ICECREAM.git
    rename .env_example to .env and then run:
@@ -16,18 +26,17 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
      
 and access to http://localhost:8000/api
 # 
-
-**To run bottle builtin server with commands:**
+### To run builtin server:
     
     python manage.py runserver 
     python manage.py runserver 127.0.0.1:8000
 # 
-
-**To bind icecream to gunicorn:**
+## To bind icecream to gunicorn:
     
     gunicorn --workers=2  'manage:wsgi_app()'
 
 #  
+## .env parameters:
 Copy and rename .env_example to .env and change the variable as project needs.
 Or you can add the parameters manually into the .env file
 To generate a .env file these values are required:
@@ -57,21 +66,21 @@ Congratulations! You've just created your first website and run it using a web s
 ![icecream](https://user-images.githubusercontent.com/18069620/92040998-a654c880-ed8c-11ea-87c8-340306fbbba8.png)
 # 
 
-**to create superuser:**
+## to create superuser:
 
     python manage.py createsuperuser
 #     
-**to create new app:**
+## to create new app:
 
     python manage.py startapp app_name
     then register app in settings.py
 # 
-#### **Migration Commands:**
-**To make migration:**
+##Migration Commands:
+###To make migration:
 
     alembic revision --autogenerate -m "Message"
 
-**To migrate:**
+###To migrate
 
     alembic upgrade head
 # 
