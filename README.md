@@ -63,6 +63,7 @@ To generate a .env file these values are required:
 | host                     | icecream host |
 | port                     | icecream port |
 | db_name                  | your database db_name|
+| db_type                  | sqlite or postgres|
 | db_user                  | your database username|
 | db_pass                  | your database password|
 | db_host                  | your database host|
