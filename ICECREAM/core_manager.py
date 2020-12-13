@@ -7,8 +7,11 @@ import sentry_sdk
 from shutil import copy
 from pydoc import locate
 from getpass import getpass
+from alembic import command
+from copy import deepcopy
+from alembic.config import Config
 from sqlalchemy_searchable import sync_trigger
-
+from alembic.command import init as alembic_init
 from .api_cache import CachePlugin
 from .db_initializer import db
 from .filters import SmartFiltersPlugin
@@ -33,28 +36,26 @@ def get_default_address():
 
 rootpath.append()
 ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
-commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic', 'createsuperuser', 'index_search']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
 class CommandsParser(object):
     def __init__(self, opt_commands):
-        self.command = None
-        self.subcommands = None
+        self.command = []
+        self.subcommands = []
         self.opt_commands = opt_commands
+        self.commands_list = ['startapp', 'runserver', 'wsgi', 'makemigrations', 'createsuperuser', 'index_search']
 
     def get_command(self, ):
-        if self.opt_commands[0] in commands_list:
+        if self.opt_commands[0] in self.commands_list:
             self.command = self.opt_commands[0]
             return self.command
 
     def get_subcommand(self, ):
-        if self.opt_commands[0] in commands_list:
+        if self.opt_commands[0] in self.commands_list:
             self.command = self.opt_commands[0]
-            self.opt_commands.remove(self.command)
-            self.subcommands = []
-            for command in self.opt_commands:
-                self.subcommands.append(str(command))
+            self.subcommands = deepcopy(self.opt_commands)
+            self.subcommands.remove(self.command)
         return self.subcommands
 
     def has_value(self) -> bool:
@@ -77,8 +78,11 @@ class CommandManager(object):
         if self.command.has_value():
             core = Core()
             return core.execute_wsgi()
-        if self.command.get_command() == 'makealembic':
-            self.init_alembic_env()
+        if self.command.get_command() == 'makemigrations':
+            if self.command.has_subcommand():
+                self.makemigrations(self.command.get_subcommand()[0])
+            else:
+                self.makemigrations("migration")
         if self.command.get_command() == "index_search":
             self.index_search()
         if self.command.get_command() == "createsuperuser":
@@ -109,13 +113,16 @@ class CommandManager(object):
             raise err.filename
 
     @staticmethod
-    def init_alembic_env():
-        dst = rootpath.detect() + "/alembic/"
-        if os.path.exists(dst):
+    def makemigrations(commit_name):
+        alembic_folder_dst = rootpath.detect() + os.sep + "alembic"
+        alembic_init_dst = rootpath.detect() + os.sep + "alembic.ini"
+        alembic_cfg = Config()
+        alembic_cfg.config_file_name = alembic_init_dst
+        if not (os.path.exists(alembic_folder_dst) and os.path.exists(alembic_init_dst)):
+            alembic_init(directory=alembic_folder_dst, config=alembic_cfg)
             src = ICECREAM_PATH + "/migration_tool/env.py"
-            copy(src, dst)
-        else:
-            logging.info("please alembic init alembic , before makealembic")
+            copy(src, alembic_folder_dst)
+        command.revision(alembic_cfg, commit_name, autogenerate=True)
 
     @db_handler
     def create_super_user(self, db_session):
