@@ -22,8 +22,8 @@ apps = [
 rules_file = os.getenv("rules_file")
 roles_file = os.getenv("roles_file")
 default_address = {
-    'host': os.getenv('host'),
-    'port': os.getenv('port'),
+    'host': os.getenv('host') or '127.0.0.1',
+    'port': os.getenv('port') or 8888,
 }
 redis_cache = {
     'redis_host': os.getenv('redis_host') or '127.0.0.1',
@@ -35,8 +35,9 @@ database = {
     'db_pass': os.getenv('db_pass'),
     'db_host': os.getenv('db_host'),
     'db_port': os.getenv('db_port'),
-    'db_name': os.getenv('db_name')
+    'db_name': os.getenv('db_name'),
+    'db_type': os.getenv('db_type') or "sqlite"
 }
 project_secret = os.getenv('project_secret')
-jwt_ttl = os.getenv('jwt_ttl')
+jwt_ttl = os.getenv('jwt_ttl') or 64000
 sentry_dsn = os.getenv('sentry_dsn')
