@@ -99,7 +99,7 @@ Congratulations! You've just created your first website and run it using a web s
 ## Migration Commands:
 **To make migration:**
 
-    alembic revision --autogenerate -m "Message"
+    python manage.py  makemigrations your_message
 
 **To migrate:**
 
