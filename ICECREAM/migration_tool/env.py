@@ -9,7 +9,7 @@ from sqlalchemy import engine_from_config
 
 config = context.config
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from ICECREAM.db_initializer import Base, get_database_uri
+from ICECREAM.db_initializer import Base, db
 
 
 def load_all(module_name):
@@ -39,7 +39,7 @@ def load_all(module_name):
 target_metadata = Base.metadata
 
 load_all('models')
-config.set_main_option('sqlalchemy.url', get_database_uri())
+config.set_main_option('sqlalchemy.url', db.url)
 fileConfig(config.config_file_name)
 
 
