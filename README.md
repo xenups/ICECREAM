@@ -29,6 +29,7 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
     git clone https://github.com/xenups/ICECREAM.git
 	#install requirements
 	pip install -r requirements.txt
+	#rename .env_example to env
 	#make migration
 	python manage.py  makemigrations
 	#to migrate
