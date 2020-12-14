@@ -65,8 +65,5 @@ orm.configure_mappers()
 
 
 def get_db_session() -> Session:
-    if hasattr(request, 'db_session'):
-        return request.db_session
-    else:
-        request.db_session = db.session
-        return request.db_session
+    setattr(request, 'db_session', db.session)
+    return getattr(request, 'db_session')
