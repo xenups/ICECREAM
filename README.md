@@ -25,21 +25,27 @@
 ICE-CREAM framework for Bottle designed to simplify building restful API. It is structured such that any part of the core functionality can be customized to suit the needs of your project.
 
 ## Quickstart:
-	#clone it from github
-    git clone https://github.com/xenups/ICECREAM.git
-	#install requirements
-	pip install -r requirements.txt
-	#rename .env_example to env
+
+   	#install it from Pypi:
+    pip install icecreamy
+    
+    #to make icecream project, run:
+    make_project.py
+        
+	
+
 	#make migration
-	python manage.py  makemigrations
+	python manage.py  makemigrations init
+	
 	#to migrate
 	alembic upgrade head
-	#runing server
+	
+	  #runing server
     python manage.py runserver 
 
 
      
-and access to http://localhost:8000/api
+and access to http://localhost:8888/api
 # 
 
 ## Builtin server:
