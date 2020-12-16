@@ -30,9 +30,7 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
     pip install icecreamy
     
     #to make icecream project, run:
-    make_project.py
-        
-	
+    make_project.py 
 
 	#make migration
 	python manage.py  makemigrations init
@@ -40,7 +38,7 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
 	#to migrate
 	alembic upgrade head
 	
-	  #runing server
+	#runing server
     python manage.py runserver 
 
 
