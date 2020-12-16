@@ -9,8 +9,9 @@ from app_user.models import User
 from rbac.proxy import RegistryProxy
 from rbac.context import IdentityContext
 
-from settings import rules_file, roles_file, project_root
+from settings import rules_file, roles_file
 
+project_root = os.path.abspath(os.curdir)
 roles_path = project_root + "/" + roles_file
 rules_path = project_root + "/" + rules_file
 
