@@ -20,13 +20,16 @@ from .util import strip_path
 from .wrappers import db_handler, cors
 from ICECREAM.baseapp import BaseApp
 from .models.query import get_or_create
-from app_user.models import Person, User
-from app_user.authentication import jwt_plugin
 from bottle import Bottle, run, static_file, BaseTemplate
 from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-from app_user.schemas import user_serializer, superuser_serializer
-from settings import default_address, apps, sentry_dsn, DEBUG, media_path, searches_index, redis_cache
+
+try:
+    from settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache
+except ModuleNotFoundError as exception:
+    from ICECREAM.settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache
+
+    logging.error(exception)
 
 
 def get_default_address():
@@ -35,7 +38,10 @@ def get_default_address():
 
 
 rootpath.append()
-ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
+root_name, _, _ = __name__.partition('.')
+root_module = sys.modules[root_name]
+ICECREAM_PATH = os.path.dirname(root_module.__file__)
+
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
@@ -114,8 +120,9 @@ class CommandManager(object):
 
     @staticmethod
     def makemigrations(commit_name):
-        alembic_folder_dst = rootpath.detect() + os.sep + "alembic"
-        alembic_init_dst = rootpath.detect() + os.sep + "alembic.ini"
+        project_root = os.path.abspath(os.curdir)
+        alembic_folder_dst = project_root + os.sep + "alembic"
+        alembic_init_dst = project_root + os.sep + "alembic.ini"
         alembic_cfg = Config()
         alembic_cfg.config_file_name = alembic_init_dst
         if not (os.path.exists(alembic_folder_dst) and os.path.exists(alembic_init_dst)):
@@ -127,6 +134,8 @@ class CommandManager(object):
     @db_handler
     def create_super_user(self, db_session):
         try:
+            from app_user.schemas import user_serializer, superuser_serializer
+            from app_user.models import User, Person
             name = input("Name:")
             person = get_or_create(Person, db_session, Person.name == name)
             person.last_name = input("LastName:")
@@ -152,6 +161,7 @@ class CommandManager(object):
     @staticmethod
     def index_search():
         try:
+            from settings import searches_index
             for _index in searches_index:
                 sync_trigger(db.engine, *_index)
         except Exception:
@@ -187,10 +197,14 @@ class Core(object):
             return "ICECREAM didn't find anything"
 
     def __init_jwt(self):
-        if jwt_plugin.auth_endpoint:
-            self.core.install(jwt_plugin)
-            return True
-        return False
+        try:
+            from app_user.authentication import jwt_plugin
+            if jwt_plugin.auth_endpoint:
+                self.core.install(jwt_plugin)
+                return True
+            return False
+        except ModuleNotFoundError as ex:
+            logging.info(ex)
 
     def __init_cors(self):
         self.core.install(cors)
@@ -284,11 +298,13 @@ class Core(object):
     @staticmethod
     def __initialize_baseapps():
         try:
+            from settings import apps
             for app in apps:
                 baseapp_class = locate(app)
                 if baseapp_class:
                     instance = baseapp_class()
         except Exception as exception:
+            logging.error(exception)
             raise ValueError("undefined app")
 
     def __get_subclasses(self, cls):
