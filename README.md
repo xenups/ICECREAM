@@ -25,20 +25,22 @@
 ICE-CREAM framework for Bottle designed to simplify building restful API. It is structured such that any part of the core functionality can be customized to suit the needs of your project.
 
 ## Quickstart:
-	#install it from Pypi:
+
+   	#install it from Pypi:
     pip install icecreamy
     
     #to make icecream project, run:
     make_project.py
         
 	
+
 	#make migration
 	python manage.py  makemigrations init
 	
 	#to migrate
 	alembic upgrade head
 	
-	#runing server
+	  #runing server
     python manage.py runserver 
 
 
@@ -103,7 +105,7 @@ Congratulations! You've just created your first website and run it using a web s
 ## Migration Commands:
 **To make migration:**
 
-    alembic revision --autogenerate -m "Message"
+    python manage.py  makemigrations your_message
 
 **To migrate:**
 
