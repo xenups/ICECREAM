@@ -1,11 +1,8 @@
 import json
-
 from alembic import command
 from alembic.config import Config
 from webtest import TestApp
 from .core_manager import Core
-from .db_initializer import DataBaseConnectionManager
-from .plugin import DBInjectorPlugin
 
 
 class APIResponse(object):
