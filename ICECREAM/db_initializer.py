@@ -1,6 +1,8 @@
 import logging
 from sqlalchemy import orm
 from bottle import request
+
+from ICECREAM.util import Singleton
 from settings import database
 from mongosql import MongoSqlBase
 from sqlalchemy.orm import Session
@@ -27,6 +29,7 @@ class ConnectionFactory(object):
 
 class PostgresConnectionFactory(ConnectionFactory):
     def __init__(self, database_conf: {}, meta_data=None):
+        super().__init__()
         self.user = database_conf['db_user']
         self.password = database_conf['db_pass']
         self.host = database_conf['db_host']
@@ -49,24 +52,41 @@ class Sqlite3ConnectionFactory(ConnectionFactory):
         return "sqlite:///{}.sqlite3".format(self.__db)
 
 
-def create_db_connection(database_conf, meta_data, type_db="sqlite"):
-    if type_db == "sqlite":
-        return Sqlite3ConnectionFactory().connect()
-    elif type_db == "postgres":
-        return PostgresConnectionFactory(database_conf, meta_data).connect()
-    else:
-        raise Exception(f"Not implemented {type_db}")
+class SqliteTestConnectionFactory(Sqlite3ConnectionFactory):
+
+    def get_database_uri(self):
+        return 'sqlite:///:memory:'
 
 
-db = create_db_connection(database, metadata, type_db=database["db_type"])
-db.session_options = {'autocommit': True}
-metadata.create_all(db.engine)
-orm.configure_mappers()
+class BaseDataBaseConnectionManager(object):
+    def __init__(self, db_type=database["db_type"]):
+        self.db = self.create_db_connection(database, metadata, db_type=db_type)
+        self.db.session_options = {'autocommit': True}
+        metadata.create_all(self.db.engine)
+        orm.configure_mappers()
+
+    def get_db_session(self) -> Session:
+        if hasattr(request, 'db_session'):
+            return getattr(request, 'db_session')
+        else:
+            setattr(request, 'db_session', self.db.session)
+            return getattr(request, 'db_session')
+
+    @staticmethod
+    def create_db_connection(database_conf, meta_data, db_type="sqlite"):
+        logging.info("DB is connecting ...")
+        if db_type == "sqlite":
+            logging.info("sqlite")
+            return Sqlite3ConnectionFactory().connect()
+        elif db_type == "postgres":
+            logging.info("postgres")
+            return PostgresConnectionFactory(database_conf, meta_data).connect()
+        elif db_type == "memory":
+            logging.info("sqlite memory")
+            return SqliteTestConnectionFactory().connect()
+        else:
+            raise Exception(f"Not implemented {db_type}")
 
 
-def get_db_session() -> Session:
-    if hasattr(request, 'db_session'):
-        return request.db_session
-    else:
-        request.db_session = db.session
-        return request.db_session
+class DataBaseConnectionManager(BaseDataBaseConnectionManager, metaclass=Singleton):
+    pass
