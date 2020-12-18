@@ -5,7 +5,7 @@ from bottle import request
 from sqlalchemy.exc import SQLAlchemyError
 
 from ICECREAM.cache import RedisCache
-from ICECREAM.db_initializer import get_db_session
+from ICECREAM.db_initializer import DataBaseConnectionManager
 import logging
 
 logger = logging.getLogger()
@@ -61,7 +61,7 @@ def cors(fn):
 
 def db_handler(func):
     def wrapper(*args, **kwargs):
-        session = get_db_session()
+        session = DataBaseConnectionManager().get_db_session()
         try:
             session.expire_on_commit = False
             kwargs['db_session'] = session
