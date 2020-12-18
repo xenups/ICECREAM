@@ -1,4 +1,6 @@
 import json
+from alembic import command
+from alembic.config import Config
 from webtest import TestApp
 from .core_manager import Core
 
@@ -14,7 +16,15 @@ class APIResponse(object):
 
 class Client(object):
     def __init__(self):
-        self.test_core = TestApp(Core().execute_wsgi())
+        self.core = Core(db_type='memory').execute_wsgi()
+        self.test_core = TestApp(self.core)
+
+    def migrate_in_memory(self, migrations_path, alembic_ini_path=None, connection=None, revision="head"):
+        config = Config(alembic_ini_path)
+        config.set_main_option('script_location', migrations_path)
+        if connection is not None:
+            config.attributes['connection'] = connection
+        command.upgrade(config, revision)
 
     def get_api(self, api_url, *auth):
         response = APIResponse()

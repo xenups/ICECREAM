@@ -13,7 +13,7 @@ from alembic.config import Config
 from sqlalchemy_searchable import sync_trigger
 from alembic.command import init as alembic_init
 from .api_cache import CachePlugin
-from .db_initializer import db
+from .db_initializer import DataBaseConnectionManager
 from .filters import SmartFiltersPlugin
 from .plugin import DBInjectorPlugin
 from .util import strip_path
@@ -25,7 +25,7 @@ from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 try:
-    from settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache
+    from settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache, database
 except ModuleNotFoundError as exception:
     from ICECREAM.settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache
 
@@ -82,7 +82,7 @@ class CommandManager(object):
 
     def execute(self):
         if self.command.has_value():
-            core = Core()
+            core = Core(db_type=database["db_type"])
             return core.execute_wsgi()
         if self.command.get_command() == 'makemigrations':
             if self.command.has_subcommand():
@@ -99,7 +99,7 @@ class CommandManager(object):
             else:
                 sys.stdout.write('ICECREAM: Need to provide an app name' + '\n')
         elif self.command.get_command() == 'runserver':
-            core = Core()
+            core = Core(db_type=database["db_type"])
             if self.command.has_subcommand():
                 return core.execute_runserver(self.command.get_subcommand()[0])
             else:
@@ -156,22 +156,24 @@ class CommandManager(object):
             result = user_serializer.dump(db_session.query(User).get(user.id))
             return result
         except Exception as e:
-            print(e.args)
+            logging.info(e.args)
 
     @staticmethod
     def index_search():
         try:
             from settings import searches_index
             for _index in searches_index:
+                db = DataBaseConnectionManager().db
                 sync_trigger(db.engine, *_index)
         except Exception:
             raise
 
 
 class Core(object):
-    def __init__(self, ):
+    def __init__(self, **options):
         try:
             self.core = Bottle()
+            self.options = options
             BaseTemplate.defaults['get_url'] = self.core.get_url
             self.__route_homepage()
             self.__init_jwt()
@@ -180,7 +182,7 @@ class Core(object):
             self.__initialize_log()
             self.__initialize_filters()
             self.__init_cors()
-            self.__init_inject_db()
+            self.__init_inject_db(self.options)
             self.__initialize_sentry_log()
             self.__register_routers()
             self.__route_404_error()
@@ -209,9 +211,12 @@ class Core(object):
     def __init_cors(self):
         self.core.install(cors)
 
-    def __init_inject_db(self):
-        __db_plugin = DBInjectorPlugin()
-        self.core.install(__db_plugin)
+    def __init_inject_db(self, options=None):
+        if options.get('db_type'):
+            _db_plugin = DBInjectorPlugin(db_type=options.get('db_type'))
+        else:
+            _db_plugin = DBInjectorPlugin(db_type="sqlite")
+        return self.core.install(_db_plugin)
 
     def __init_api_cache(self):
         cache = CachePlugin('url_cache', 'redis', host=redis_cache['redis_host'], port=redis_cache['redis_port'],
