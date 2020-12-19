@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 setup(
     name='icecreamy',
-    version='0.0.6',
+    version='0.0.6.1',
     author='xenups',
     include_package_data=True,
     author_email='xenups@gmail.com',
@@ -14,6 +14,9 @@ setup(
     license='LICENSE.txt',
     scripts=['make_project.py'],
     description='restful framework with bottle',
+    entry_points={
+        'console_scripts': ['make_project=ICECREAM.makeproject:make_project'],
+    },
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     install_requires=[

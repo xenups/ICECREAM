@@ -31,7 +31,7 @@ ICE-CREAM framework for Bottle designed to simplify building restful API. It is 
     pip install icecreamy
     
     #to make icecream project, run:
-    make_project.py 
+    make_project 
 
 	#make migration
 	python manage.py  makemigrations init
