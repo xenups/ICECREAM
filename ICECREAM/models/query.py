@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import NoResultFound
 
-#########need to be refactor################
+# ########need to be refactor################
+
 from ICECREAM.http import HTTPError
 
 
@@ -47,7 +47,7 @@ def get_object(model, session, *args, **kwargs):
     try:
         model_object = session.query(model).filter(*args, **kwargs).first()
         return model_object
-    except Exception as e:
+    except Exception:
         return None
 
 

@@ -30,7 +30,7 @@ def get_media_link(file_name):
 def str_to_bool(val):
     try:
         return strtobool(val)
-    except Exception as e:
+    except Exception:
         return None
 
 

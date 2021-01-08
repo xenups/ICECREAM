@@ -1,6 +1,5 @@
 import os
 import sys
-import pathlib
 import logging
 import rootpath
 import sentry_sdk
@@ -159,7 +158,7 @@ class CommandManager(object):
     @db_handler
     def create_super_user(self, db_session):
         try:
-            from app_user.schemas import user_serializer, superuser_serializer
+            from app_user.schemas import user_serializer
             from app_user.models import User, Person
 
             name = input("Name:")
@@ -318,7 +317,7 @@ class Core(object):
                 arg_address = argv.split(":")
                 _address["host"] = arg_address[0]
                 _address["port"] = arg_address[1]
-        except Exception as e:
+        except Exception:
             raise ValueError("ICECREAM: Please provide a valid address")
         return _address
 

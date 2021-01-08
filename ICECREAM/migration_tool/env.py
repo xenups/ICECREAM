@@ -1,7 +1,6 @@
 import sys
 import os
 
-import sqlalchemy_utils
 from alembic import context
 from sqlalchemy import pool
 from logging.config import fileConfig

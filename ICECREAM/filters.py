@@ -30,7 +30,6 @@ import ast
 from functools import partial
 import bottle
 import ujson
-from mongosql import MongoQuery, MongoQuerySettingsDict
 from sqlalchemy_filters import apply_filters
 
 from ICECREAM.http import HTTPResponse, HTTPError
@@ -144,7 +143,7 @@ class RestFilter(object):
             filters = bottle.request.query.smart_filters()
             filter_spec = filters.get("filters")
             filter_spec = ast.literal_eval(filter_spec)
-        except Exception as e:
+        except Exception:
             raise HTTPResponse(status=404, body="url_is_not_valid")
         return filter_spec
 
