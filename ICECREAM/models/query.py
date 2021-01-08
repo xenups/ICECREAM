@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
+
 #########need to be refactor################
 from ICECREAM.http import HTTPError
 
@@ -10,7 +11,9 @@ def get_nested_list_data(model, data, db_session):
     _list_object = []
     if hasattr(model(), "id"):
         for _object in data:
-            actor_obj = get_object_or_404(model, db_session, model.id == _object.get("id"))
+            actor_obj = get_object_or_404(
+                model, db_session, model.id == _object.get("id")
+            )
             _list_object.append(actor_obj)
         return _list_object
     HTTPError(400, "Model_should_has_id")
@@ -62,7 +65,7 @@ def get_object_or_404(model, session, *args, **kwargs):
 
 def set_objects_limit(list_object: [], limit: int, session: Session):
     """
-        Use set_objects_limit to clear last element and hold objects limit count
+    Use set_objects_limit to clear last element and hold objects limit count
     """
     offset = (limit - 1) * -1
     if offset == 0:
@@ -72,7 +75,7 @@ def set_objects_limit(list_object: [], limit: int, session: Session):
 
 def is_object_exist_409(model, session, *args, **kwargs):
     """
-        Use is_object_exist_409 if object exist raise Http409.
+    Use is_object_exist_409 if object exist raise Http409.
     """
     model_object = session.query(model).filter(*args, **kwargs).first()
     if model_object:

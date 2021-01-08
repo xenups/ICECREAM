@@ -3,22 +3,29 @@ try:
 except ImportError:
     from distutils.core import setup
 setup(
-    name='icecreamy',
-    version='0.0.6.1',
-    author='xenups',
+    name="icecreamy",
+    version="0.0.6.1",
+    author="xenups",
     include_package_data=True,
-    author_email='xenups@gmail.com',
-    packages=['ICECREAM', 'ICECREAM', 'ICECREAM.api_cache', 'ICECREAM.migration_tool', 'ICECREAM.models',
-              'ICECREAM.statics', 'ICECREAM.assets'],
-    url='https://github.com/xenups/ICECREAM',
-    license='LICENSE.txt',
-    scripts=['make_project.py'],
-    description='restful framework with bottle',
+    author_email="xenups@gmail.com",
+    packages=[
+        "ICECREAM",
+        "ICECREAM",
+        "ICECREAM.api_cache",
+        "ICECREAM.migration_tool",
+        "ICECREAM.models",
+        "ICECREAM.statics",
+        "ICECREAM.assets",
+    ],
+    url="https://github.com/xenups/ICECREAM",
+    license="LICENSE.txt",
+    scripts=["make_project.py"],
+    description="restful framework with bottle",
     entry_points={
-        'console_scripts': ['make_project=ICECREAM.makeproject:make_project'],
+        "console_scripts": ["make_project=ICECREAM.makeproject:make_project"],
     },
-    long_description=open('README.md').read(),
-    long_description_content_type='text/markdown',
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     install_requires=[
         "bottle-jwt2",
         "alembic",
@@ -60,6 +67,5 @@ setup(
         "WebTest",
         "Werkzeug",
         "ujson",
-
     ],
 )

@@ -1,5 +1,4 @@
 class ResourceMixin(object):
-
     def __eq__(self, other):
         return hasattr(other, "id") and self.id == other.id
 

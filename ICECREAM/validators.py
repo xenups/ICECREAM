@@ -9,5 +9,3 @@ def validate_data(serializer: Schema, data: {}):
     if validation_errors:
         raise HTTPError(403, validation_errors)
     return True
-
-
