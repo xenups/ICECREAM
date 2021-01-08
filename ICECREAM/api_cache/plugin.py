@@ -5,8 +5,8 @@ Provides bottle.py cache plugin.
 modified by amir lesani
 """
 
-__author__ = 'Papavassiliou Vassilis'
-__date__ = '23-1-2016'
+__author__ = "Papavassiliou Vassilis"
+__date__ = "23-1-2016"
 
 import bottle
 import collections
@@ -15,7 +15,7 @@ import ujson
 
 from ICECREAM.api_cache import backend
 
-CacheInfo = collections.namedtuple('CacheInfo', 'ttl, cache_key_func, content_type')
+CacheInfo = collections.namedtuple("CacheInfo", "ttl, cache_key_func, content_type")
 
 
 def available_backend():  # pragma: no cover
@@ -26,16 +26,18 @@ def available_backend():  # pragma: no cover
     backend_module = backend
 
     available_list = [
-        callback for callback in dir(backend_module)
-        if 'cachebackend' in callback.lower() and
-           'base' not in callback.lower()
+        callback
+        for callback in dir(backend_module)
+        if "cachebackend" in callback.lower() and "base" not in callback.lower()
     ]
 
-    return {callback.lower().replace('cachebackend', ''): getattr(backend_module, callback)
-            for callback in available_list}
+    return {
+        callback.lower().replace("cachebackend", ""): getattr(backend_module, callback)
+        for callback in available_list
+    }
 
 
-def cache_for(ttl, cache_key_func='full_path', content_type='application/json'):
+def cache_for(ttl, cache_key_func="full_path", content_type="application/json"):
     """A decorator that signs a callable object with a 'CacheInfo'
     attribute.
 
@@ -48,11 +50,7 @@ def cache_for(ttl, cache_key_func='full_path', content_type='application/json'):
     """
 
     def _wrapped(callback):
-        setattr(
-            callback,
-            'cache_info',
-            CacheInfo(ttl, cache_key_func, content_type)
-        )
+        setattr(callback, "cache_info", CacheInfo(ttl, cache_key_func, content_type))
 
         return callback
 
@@ -73,22 +71,19 @@ class CachePlugin(object):
 
     api = 2
 
-    content_types = (
-        ('text/html', lambda x: x),
-        ('application/json', ujson.dumps)
-    )
+    content_types = (("text/html", lambda x: x), ("application/json", ujson.dumps))
 
     cache_key_rules = {
-        'full_path': lambda req, cxt: str(cxt.rule) + req.query_string,
-        'query_path': lambda req, cxt: req.query_string,
+        "full_path": lambda req, cxt: str(cxt.rule) + req.query_string,
+        "query_path": lambda req, cxt: req.query_string,
     }
 
     def __init__(self, keyword, backend, **backend_kwargs):  # pragma: no cover
 
         if backend not in available_backend():
             raise bottle.PluginError(
-                'Invalid backend {} provided. Available until now: ({})'.format(
-                    backend, ', '.join(available_backend().keys())
+                "Invalid backend {} provided. Available until now: ({})".format(
+                    backend, ", ".join(available_backend().keys())
                 )
             )
 
@@ -114,9 +109,8 @@ class CachePlugin(object):
                 )
 
     def apply(self, callback, context):  # pragma: no cover
-        """Implement bottle.py API version 2 `apply` method.
-        """
-        cache_enabled = getattr(callback, 'cache_info', None)
+        """Implement bottle.py API version 2 `apply` method."""
+        cache_enabled = getattr(callback, "cache_info", None)
 
         if not cache_enabled:
             callback_args = inspect.getfullargspec(context.callback).args
@@ -132,8 +126,8 @@ class CachePlugin(object):
 
         if cache_enabled.cache_key_func not in self:
             raise bottle.PluginError(
-                'Unregistered cache key function: '
-                '{}.'.format(cache_enabled.cache_key_func)
+                "Unregistered cache key function: "
+                "{}.".format(cache_enabled.cache_key_func)
             )
 
         def wrapper(*args, **kwargs):
@@ -157,10 +151,7 @@ class CachePlugin(object):
         return "<{} instance at: 0x{:x}>".format(self.__class__, id(self))
 
     def __str__(self):  # pragma: no cover
-        return '<{} instance> {}'.format(
-            self.__class__.__name__,
-            self.keyword
-        )
+        return "<{} instance> {}".format(self.__class__.__name__, self.keyword)
 
     def __iter__(self):  # pragma: no cover
         for key in self.cache_key_rules:

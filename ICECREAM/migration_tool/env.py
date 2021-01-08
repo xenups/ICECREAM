@@ -1,7 +1,6 @@
 import sys
 import os
 
-import sqlalchemy_utils
 from alembic import context
 from sqlalchemy import pool
 from logging.config import fileConfig
@@ -14,32 +13,32 @@ from ICECREAM.db_initializer import Base, DataBaseConnectionManager
 
 def load_all(module_name):
     import os
+
     try:
         directories = []
         path = os.getcwd()
         for root, dirs, files in os.walk(path):
             for file in files:
-                script = '{}.py'.format(module_name)
+                script = "{}.py".format(module_name)
                 if file.endswith(script):
                     filepath = os.path.join(root, file)
-                    if 'env' not in filepath:
+                    if "env" not in filepath:
                         dir_address = str(os.path.dirname(filepath))
                         directory_name = dir_address.split(str(os.sep))[-1]
-                        if directory_name != 'models':
+                        if directory_name != "models":
                             directories.append(directory_name)
 
         for app in directories:
             print(app)
-            __import__('{}.{}'.format(app, module_name),
-                       fromlist=['*'])
+            __import__("{}.{}".format(app, module_name), fromlist=["*"])
     except Exception as e:
         print(e)
 
 
 target_metadata = Base.metadata
 url = DataBaseConnectionManager().db.url
-load_all('models')
-config.set_main_option('sqlalchemy.url', url)
+load_all("models")
+config.set_main_option("sqlalchemy.url", url)
 fileConfig(config.config_file_name)
 
 
@@ -76,7 +75,6 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             render_item=render_item,
-
         )
 
         with context.begin_transaction():

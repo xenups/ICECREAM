@@ -4,8 +4,8 @@
 Provides the main package interfaces for caching.
 """
 
-__author__ = 'Papavassiliou Vassilis'
-__date__ = '23-1-2016'
+__author__ = "Papavassiliou Vassilis"
+__date__ = "23-1-2016"
 
 import abc
 import six
@@ -13,19 +13,18 @@ from . import __version__ as version
 
 
 class CacheError(Exception):
-    """Raises when a caching error occurs (i.e connection error)
-    """
+    """Raises when a caching error occurs (i.e connection error)"""
+
     pass
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseCacheBackend(object):
-    """Base class interface.
-    """
+    """Base class interface."""
 
-    api_version = tuple(map(int, version.split('.')))
+    api_version = tuple(map(int, version.split(".")))
 
-    __slots__ = ('backend', 'key_tpl')
+    __slots__ = ("backend", "key_tpl")
 
     def __init__(self, backend_client, key_tpl=None):
         self.backend = backend_client

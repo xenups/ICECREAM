@@ -14,8 +14,11 @@ CHUNK_SIZE = 5000
 class BaseRedisConnector(Redis):
     def __init__(self):
         try:
-            super().__init__(host=redis_cache['redis_host'], port=redis_cache['redis_port'],
-                             password=redis_cache['redis_pass'])
+            super().__init__(
+                host=redis_cache["redis_host"],
+                port=redis_cache["redis_port"],
+                password=redis_cache["redis_pass"],
+            )
 
         except Exception as error:
             logger.error(error)
@@ -54,8 +57,8 @@ class RedisCache(RedisConnector):
             return __cache_status
 
     def clear_ns(self, ns):
-        cursor = '0'
-        ns_keys = ns + '*'
+        cursor = "0"
+        ns_keys = ns + "*"
         while cursor != 0:
             cursor, keys = self.scan(cursor=cursor, match=ns_keys, count=CHUNK_SIZE)
             if keys:
