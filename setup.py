@@ -57,7 +57,7 @@ setup(
         "simplerbac",
         "sqla-wrapper",
         "sqlacodegen",
-        "SQLAlchemy",
+        "SQLAlchemy==1.3.23",
         "sqlalchemy-filters",
         "SQLAlchemy-Searchable",
         "SQLAlchemy-Utils",
