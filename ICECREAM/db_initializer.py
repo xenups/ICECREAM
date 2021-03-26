@@ -30,17 +30,17 @@ class ConnectionFactory(object):
 class PostgresConnectionFactory(ConnectionFactory):
     def __init__(self, database_conf: {}, meta_data=None):
         super().__init__()
-        self.user = database_conf['db_user']
-        self.password = database_conf['db_pass']
-        self.host = database_conf['db_host']
-        self.database = database_conf['db_name']
-        self.port = database_conf['db_port']
+        self.user = database_conf["db_user"]
+        self.password = database_conf["db_pass"]
+        self.host = database_conf["db_host"]
+        self.database = database_conf["db_name"]
+        self.port = database_conf["db_port"]
         make_searchable(meta_data)
 
     def get_database_uri(self):
-        uri = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(self.user, self.password,
-                                                            self.host, self.port,
-                                                            self.database)
+        uri = "postgresql+psycopg2://{}:{}@{}:{}/{}".format(
+            self.user, self.password, self.host, self.port, self.database
+        )
         return uri
 
 
@@ -53,24 +53,23 @@ class Sqlite3ConnectionFactory(ConnectionFactory):
 
 
 class SqliteTestConnectionFactory(Sqlite3ConnectionFactory):
-
     def get_database_uri(self):
-        return 'sqlite:///:memory:'
+        return "sqlite:///:memory:"
 
 
 class BaseDataBaseConnectionManager(object):
     def __init__(self, db_type=database["db_type"]):
         self.db = self.create_db_connection(database, metadata, db_type=db_type)
-        self.db.session_options = {'autocommit': True}
+        self.db.session_options = {"autocommit": True}
         metadata.create_all(self.db.engine)
         orm.configure_mappers()
 
     def get_db_session(self) -> Session:
-        if hasattr(request, 'db_session'):
-            return getattr(request, 'db_session')
+        if hasattr(request, "db_session"):
+            return getattr(request, "db_session")
         else:
-            setattr(request, 'db_session', self.db.session)
-            return getattr(request, 'db_session')
+            setattr(request, "db_session", self.db.session)
+            return getattr(request, "db_session")
 
     @staticmethod
     def create_db_connection(database_conf, meta_data, db_type="sqlite"):

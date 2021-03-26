@@ -6,13 +6,23 @@ from bottle import HTTPResponse as BottleHttpResponse
 class HTTPResponse(BottleHttpResponse):
     default_status = 500
 
-    def __init__(self, status=None, body=None, headers=None, exception=None, message="msg", traceback=None,
-                 **options):
+    def __init__(
+        self,
+        status=None,
+        body=None,
+        headers=None,
+        exception=None,
+        message="msg",
+        traceback=None,
+        **options
+    ):
         self.exception = exception
         self.traceback = traceback
         self.body = self.convert_to_json(body, message)
-        headers = headers or {'Content-type': 'application/json'}
-        super(HTTPResponse, self).__init__(self.body, headers=headers, status=status, **options)
+        headers = headers or {"Content-type": "application/json"}
+        super(HTTPResponse, self).__init__(
+            self.body, headers=headers, status=status, **options
+        )
 
     @staticmethod
     def convert_to_json(body, message):

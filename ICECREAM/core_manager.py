@@ -1,6 +1,5 @@
 import os
 import sys
-import pathlib
 import logging
 import rootpath
 import sentry_sdk
@@ -25,9 +24,22 @@ from sentry_sdk.integrations.bottle import BottleIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 try:
-    from settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache, database
+    from settings import (
+        default_address,
+        sentry_dsn,
+        DEBUG,
+        media_path,
+        redis_cache,
+        database,
+    )
 except ModuleNotFoundError as exception:
-    from ICECREAM.settings import default_address, sentry_dsn, DEBUG, media_path, redis_cache
+    from ICECREAM.settings import (
+        default_address,
+        sentry_dsn,
+        DEBUG,
+        media_path,
+        redis_cache,
+    )
 
     logging.error(exception)
 
@@ -38,11 +50,11 @@ def get_default_address():
 
 
 rootpath.append()
-root_name, _, _ = __name__.partition('.')
+root_name, _, _ = __name__.partition(".")
 root_module = sys.modules[root_name]
 ICECREAM_PATH = os.path.dirname(root_module.__file__)
 
-list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
+list_files = ["models.py", "controller.py", "schemas.py", "urls.py"]
 
 
 class CommandsParser(object):
@@ -50,14 +62,25 @@ class CommandsParser(object):
         self.command = []
         self.subcommands = []
         self.opt_commands = opt_commands
-        self.commands_list = ['startapp', 'runserver', 'wsgi', 'makemigrations', 'createsuperuser', 'index_search']
+        self.commands_list = [
+            "startapp",
+            "runserver",
+            "wsgi",
+            "makemigrations",
+            "createsuperuser",
+            "index_search",
+        ]
 
-    def get_command(self, ):
+    def get_command(
+        self,
+    ):
         if self.opt_commands[0] in self.commands_list:
             self.command = self.opt_commands[0]
             return self.command
 
-    def get_subcommand(self, ):
+    def get_subcommand(
+        self,
+    ):
         if self.opt_commands[0] in self.commands_list:
             self.command = self.opt_commands[0]
             self.subcommands = deepcopy(self.opt_commands)
@@ -76,7 +99,6 @@ class CommandsParser(object):
 
 
 class CommandManager(object):
-
     def __init__(self, opt_commands):
         self.command = CommandsParser(opt_commands)
 
@@ -84,7 +106,7 @@ class CommandManager(object):
         if self.command.has_value():
             core = Core(db_type=database["db_type"])
             return core.execute_wsgi()
-        if self.command.get_command() == 'makemigrations':
+        if self.command.get_command() == "makemigrations":
             if self.command.has_subcommand():
                 self.makemigrations(self.command.get_subcommand()[0])
             else:
@@ -93,12 +115,12 @@ class CommandManager(object):
             self.index_search()
         if self.command.get_command() == "createsuperuser":
             self.create_super_user()
-        if self.command.get_command() == 'startapp':
+        if self.command.get_command() == "startapp":
             if self.command.has_subcommand():
                 self.create_app(self.command.get_subcommand()[0])
             else:
-                sys.stdout.write('ICECREAM: Need to provide an app name' + '\n')
-        elif self.command.get_command() == 'runserver':
+                sys.stdout.write("ICECREAM: Need to provide an app name" + "\n")
+        elif self.command.get_command() == "runserver":
             core = Core(db_type=database["db_type"])
             if self.command.has_subcommand():
                 return core.execute_runserver(self.command.get_subcommand()[0])
@@ -113,7 +135,7 @@ class CommandManager(object):
                 os.makedirs(path)
             for file in list_files:
                 filename = file
-                with open(os.path.join(path, filename), 'wb') as temp_file:
+                with open(os.path.join(path, filename), "wb") as temp_file:
                     temp_file.write('"ICECREAM"'.encode())
         except IOError as err:
             raise err.filename
@@ -125,7 +147,9 @@ class CommandManager(object):
         alembic_init_dst = project_root + os.sep + "alembic.ini"
         alembic_cfg = Config()
         alembic_cfg.config_file_name = alembic_init_dst
-        if not (os.path.exists(alembic_folder_dst) and os.path.exists(alembic_init_dst)):
+        if not (
+            os.path.exists(alembic_folder_dst) and os.path.exists(alembic_init_dst)
+        ):
             alembic_init(directory=alembic_folder_dst, config=alembic_cfg)
             src = ICECREAM_PATH + "/migration_tool/env.py"
             copy(src, alembic_folder_dst)
@@ -134,8 +158,9 @@ class CommandManager(object):
     @db_handler
     def create_super_user(self, db_session):
         try:
-            from app_user.schemas import user_serializer, superuser_serializer
+            from app_user.schemas import user_serializer
             from app_user.models import User, Person
+
             name = input("Name:")
             person = get_or_create(Person, db_session, Person.name == name)
             person.last_name = input("LastName:")
@@ -162,6 +187,7 @@ class CommandManager(object):
     def index_search():
         try:
             from settings import searches_index
+
             for _index in searches_index:
                 db = DataBaseConnectionManager().db
                 sync_trigger(db.engine, *_index)
@@ -174,7 +200,7 @@ class Core(object):
         try:
             self.core = Bottle()
             self.options = options
-            BaseTemplate.defaults['get_url'] = self.core.get_url
+            BaseTemplate.defaults["get_url"] = self.core.get_url
             self.__route_homepage()
             self.__init_jwt()
             self.__route_file_server()
@@ -201,6 +227,7 @@ class Core(object):
     def __init_jwt(self):
         try:
             from app_user.authentication import jwt_plugin
+
             if jwt_plugin.auth_endpoint:
                 self.core.install(jwt_plugin)
                 return True
@@ -212,36 +239,49 @@ class Core(object):
         self.core.install(cors)
 
     def __init_inject_db(self, options=None):
-        if options.get('db_type'):
-            _db_plugin = DBInjectorPlugin(db_type=options.get('db_type'))
+        if options.get("db_type"):
+            _db_plugin = DBInjectorPlugin(db_type=options.get("db_type"))
         else:
             _db_plugin = DBInjectorPlugin(db_type="sqlite")
         return self.core.install(_db_plugin)
 
     def __init_api_cache(self):
-        cache = CachePlugin('url_cache', 'redis', host=redis_cache['redis_host'], port=redis_cache['redis_port'],
-                            password=redis_cache['redis_pass'])
+        cache = CachePlugin(
+            "url_cache",
+            "redis",
+            host=redis_cache["redis_host"],
+            port=redis_cache["redis_port"],
+            password=redis_cache["redis_pass"],
+        )
         self.core.install(cache)
 
-    def __route_homepage(self, ):
+    def __route_homepage(
+        self,
+    ):
         if DEBUG:
-            self.core.hook('before_request')(strip_path)
-            self.core.route('/api', callback=self._serve_homepage_template)
-            self.core.route('/api/icecream/static/<filepath:path>', callback=self.server_homepage_static)
+            self.core.hook("before_request")(strip_path)
+            self.core.route("/api", callback=self._serve_homepage_template)
+            self.core.route(
+                "/api/icecream/static/<filepath:path>",
+                callback=self.server_homepage_static,
+            )
 
     def __route_file_server(self):
-        self.core.hook('before_request')(strip_path)
-        self.core.route('/api/media/<filepath:path>', callback=self.__serve_static_media)
+        self.core.hook("before_request")(strip_path)
+        self.core.route(
+            "/api/media/<filepath:path>", callback=self.__serve_static_media
+        )
 
     @staticmethod
     def _serve_homepage_template():
-        __homepage_file = static_file("index.html",
-                                      root=ICECREAM_PATH + '/statics/templates')
+        __homepage_file = static_file(
+            "index.html", root=ICECREAM_PATH + "/statics/templates"
+        )
         return __homepage_file
 
     @staticmethod
     def server_homepage_static(filepath):
-        return static_file(filepath, root=ICECREAM_PATH + '/statics/images/')
+        return static_file(filepath, root=ICECREAM_PATH + "/statics/images/")
 
     @staticmethod
     def __serve_static_media(filepath):
@@ -256,10 +296,17 @@ class Core(object):
     def execute_runserver(self, address=None):
         try:
             __address = self.__convert_command_to_address(address)
-            run(self.core, host=__address['host'], port=__address['port'], server='tornado', debug=DEBUG, reloader=True)
+            run(
+                self.core,
+                host=__address["host"],
+                port=__address["port"],
+                server="tornado",
+                debug=DEBUG,
+                reloader=True,
+            )
             return self.core
         except Exception as err:
-            sys.stdout.write('execute runserver has problem')
+            sys.stdout.write("execute runserver has problem")
             raise err
 
     @staticmethod
@@ -267,23 +314,25 @@ class Core(object):
         try:
             _address = get_default_address()
             if argv is not None:
-                arg_address = argv.split(':')
-                _address['host'] = arg_address[0]
-                _address['port'] = arg_address[1]
-        except Exception as e:
-            raise ValueError('ICECREAM: Please provide a valid address')
+                arg_address = argv.split(":")
+                _address["host"] = arg_address[0]
+                _address["port"] = arg_address[1]
+        except Exception:
+            raise ValueError("ICECREAM: Please provide a valid address")
         return _address
 
     @staticmethod
     def __initialize_log():
-        log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+        log_formatter = logging.Formatter(
+            "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
+        )
         root_logger = logging.getLogger()
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(log_formatter)
         root_logger.addHandler(console_handler)
 
-        file_handler = logging.FileHandler(filename='icecream.log', mode='a')
+        file_handler = logging.FileHandler(filename="icecream.log", mode="a")
         file_handler.setLevel(level=logging.ERROR)
         file_handler.setFormatter(log_formatter)
         root_logger.addHandler(file_handler)
@@ -293,17 +342,17 @@ class Core(object):
     def __initialize_sentry_log():
         sentry_logging = LoggingIntegration(
             level=logging.INFO,  # Capture info and above as breadcrumbs
-            event_level=logging.ERROR  # Send errors as events
+            event_level=logging.ERROR,  # Send errors as events
         )
         sentry_sdk.init(
-            dsn=sentry_dsn,
-            integrations=[BottleIntegration(), sentry_logging]
+            dsn=sentry_dsn, integrations=[BottleIntegration(), sentry_logging]
         )
 
     @staticmethod
     def __initialize_baseapps():
         try:
             from settings import apps
+
             for app in apps:
                 baseapp_class = locate(app)
                 if baseapp_class:

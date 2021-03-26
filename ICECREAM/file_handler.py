@@ -10,7 +10,7 @@ logger = logging.getLogger()
 rootpath.append()
 
 
-def upload(data, files_key='files', image=True):
+def upload(data, files_key="files", image=True):
     try:
         files = data.get(files_key)
         for file in files:
@@ -40,5 +40,5 @@ def remove(file_name):
 
 
 def check_image_extension(ext):
-    if ext not in ('.png', '.jpg', '.jpeg', '.jpe'):
+    if ext not in (".png", ".jpg", ".jpeg", ".jpe"):
         raise HTTPError(403, "image_type_forbidden")
