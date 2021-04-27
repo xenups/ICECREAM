@@ -5,19 +5,19 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ICECREAM.db_initializer import DataBaseConnectionManager
 
-if not hasattr(bottle, 'PluginError'):
+if not hasattr(bottle, "PluginError"):
+
     class PluginError(bottle.BottleException):
         pass
-
 
     bottle.PluginError = PluginError
 
 
 class DBInjectorPlugin(object):
-    name = 'sqlalchemy'
+    name = "sqlalchemy"
     api = 2
 
-    def __init__(self, keyword='db_session', db_type='sqlite'):
+    def __init__(self, keyword="db_session", db_type="sqlite"):
         self.keyword = keyword
         self.db_type = db_type
 
@@ -27,9 +27,11 @@ class DBInjectorPlugin(object):
                 continue
             if other.keyword == self.keyword:
                 raise bottle.PluginError(
-                    "Found another SQLAlchemy plugin with " "conflicting settings (non-unique keyword).")
+                    "Found another SQLAlchemy plugin with "
+                    "conflicting settings (non-unique keyword)."
+                )
             elif other.name == self.name:
-                self.name += '_%s' % self.keyword
+                self.name += "_%s" % self.keyword
 
     def inspect_parameters(self, callback):
         try:
@@ -41,13 +43,14 @@ class DBInjectorPlugin(object):
             accept_kwargs = argspec.keywords
         else:
             parameters = inspect.signature(callback).parameters
-            accept_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD
-                                for p in parameters.values())
+            accept_kwargs = any(
+                p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()
+            )
         return accept_kwargs, parameters
 
     def apply(self, callback, route):
-        if bottle.__version__.startswith('0.9'):
-            _callback = route['callback']
+        if bottle.__version__.startswith("0.9"):
+            _callback = route["callback"]
         else:
             _callback = route.callback
 
@@ -60,11 +63,11 @@ class DBInjectorPlugin(object):
             session = db_manager.get_db_session()
             try:
                 session.expire_on_commit = True
-                kwargs['db_session'] = session
+                kwargs["db_session"] = session
                 rtn = callback(*args, **kwargs)
-                kwargs['db_session'].commit()
+                kwargs["db_session"].commit()
                 return rtn
-            except(SQLAlchemyError, bottle.HTTPError, Exception):
+            except (SQLAlchemyError, bottle.HTTPError, Exception):
                 session.rollback()
                 raise
             finally:

@@ -26,7 +26,7 @@ class ACLHandler(object):
 
     @staticmethod
     def _read_file(file_name: str) -> list:
-        with open(file_name, newline='') as f:
+        with open(file_name, newline="") as f:
             _reader = csv.reader(f)
             data = list(_reader)
             return data
@@ -35,7 +35,9 @@ class ACLHandler(object):
         self.__acl.add_resource(Resource)
         self.__resource = Resource
 
-    def __set_roles(self, ):
+    def __set_roles(
+        self,
+    ):
         roles = self._read_file(roles_path)[0]
         for role in roles:
             self.__acl.add_role(str(role))
@@ -45,7 +47,11 @@ class ACLHandler(object):
         _resource_name = str(self.__resource().__class__.__name__).lower().strip()
         for rule in rules:
             if str(rule[2]).lower() == _resource_name:
-                self.__acl.allow(role=str(rule[0]).strip(), operation=str(rule[1]).strip(), resource=self.__resource)
+                self.__acl.allow(
+                    role=str(rule[0]).strip(),
+                    operation=str(rule[1]).strip(),
+                    resource=self.__resource,
+                )
 
     def get_identity(self, current_user):
         identity = IdentityContext(self.__acl, lambda: current_user.get_roles())
@@ -55,7 +61,7 @@ class ACLHandler(object):
 def get_rules_json(user):
     roles = user.get_roles()
     rules = []
-    with open(rules_path, 'r') as read_obj:
+    with open(rules_path, "r") as read_obj:
         csv_reader = reader(read_obj)
         for row in csv_reader:
             # rule = {"role": row[0], "rule": row[1], "object": row[2]}
@@ -66,7 +72,7 @@ def get_rules_json(user):
 
 def get_roles_json():
     rules = []
-    with open(roles_path, 'r') as read_obj:
+    with open(roles_path, "r") as read_obj:
         csv_reader = reader(read_obj)
         for row in csv_reader:
             rule = {"role": row}
@@ -75,13 +81,13 @@ def get_roles_json():
 
 
 def get_roles_list():
-    roles = ([a['role'] for a in get_roles_json()])
+    roles = [a["role"] for a in get_roles_json()]
     return roles[0]
 
 
 def get_user_identity(db_session, model):
     user = bottle.request.get_user()
-    current_user = db_session.query(User).get(user['id'])
+    current_user = db_session.query(User).get(user["id"])
     aclh = ACLHandler(Resource=model)
     aclh.add_resource(model)
     identity = aclh.get_identity(current_user)

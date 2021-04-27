@@ -4,8 +4,8 @@
 Provides package caching backend implementations.
 """
 
-__author__ = 'Papavassiliou Vassilis'
-__date__ = '23-1-2016'
+__author__ = "Papavassiliou Vassilis"
+__date__ = "23-1-2016"
 
 from redis import StrictRedis
 from redis.exceptions import RedisError
@@ -14,28 +14,26 @@ from ICECREAM.api_cache.bases import BaseCacheBackend, CacheError
 
 
 class RedisCacheBackend(BaseCacheBackend):
-    """Redis backend Implementation
-    """
+    """Redis backend Implementation"""
 
-    def __init__(self, backend_client=StrictRedis, key_tpl='{}', **conn_data):
-        """Overriding 'BaseCache.__init__' method.
-        """
+    def __init__(self, backend_client=StrictRedis, key_tpl="{}", **conn_data):
+        """Overriding 'BaseCache.__init__' method."""
 
         redis_backend = backend_client(**conn_data)
 
-        super(RedisCacheBackend, self).__init__(backend_client=redis_backend, key_tpl=key_tpl)
+        super(RedisCacheBackend, self).__init__(
+            backend_client=redis_backend, key_tpl=key_tpl
+        )
 
     def get(self, key):
-        """Implementing `BaseCache.get` method.
-        """
+        """Implementing `BaseCache.get` method."""
         try:
             return self.backend.get(key)
         except RedisError as error:  # pragma: no cover
             raise CacheError(error.args)
 
     def set(self, key, value, ttl=None):
-        """Implementing `BaseCache.set` method.
-        """
+        """Implementing `BaseCache.set` method."""
         try:
             if ttl:
                 self.backend.setex(key, ttl, value)
@@ -48,8 +46,7 @@ class RedisCacheBackend(BaseCacheBackend):
             raise CacheError(error.args)
 
     def remove(self, key):
-        """Implementing `BaseCache.remove` method.
-        """
+        """Implementing `BaseCache.remove` method."""
         try:
             self.backend.delete(key)
             return self

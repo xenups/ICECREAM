@@ -19,18 +19,17 @@
 Smart Querystring Params guessing for bottle.py applications.
 """
 
-__version__ = '0.3'
+__version__ = "0.3"
 
-__author__ = 'Papavassiliou Vassilis'
-__date__ = '2016-9-14'
+__author__ = "Papavassiliou Vassilis"
+__date__ = "2016-9-14"
 
-__all__ = ('SmartFiltersPlugin',)
+__all__ = ("SmartFiltersPlugin",)
 
 import ast
 from functools import partial
 import bottle
 import ujson
-from mongosql import MongoQuery, MongoQuerySettingsDict
 from sqlalchemy_filters import apply_filters
 
 from ICECREAM.http import HTTPResponse, HTTPError
@@ -43,13 +42,18 @@ class SmartFiltersPlugin(object):
         keyword (str): The string keyword for application registry.
         filter_set (instance): A QueryFilterSet instance.
     """
-    scope = ('plugin', 'middleware')
+
+    scope = ("plugin", "middleware")
     api = 2
 
-    def __init__(self, keyword='smart_filters', multiple_separator=',', json_identifiers=None):
+    def __init__(
+        self, keyword="smart_filters", multiple_separator=",", json_identifiers=None
+    ):
         self.keyword = keyword
         self.separator = multiple_separator
-        self.json_identifiers = set(json_identifiers) if json_identifiers else {'[', '{'}
+        self.json_identifiers = (
+            set(json_identifiers) if json_identifiers else {"[", "{"}
+        )
 
     def setup(self, app):  # pragma: no cover
         """Make sure that other installed plugins don't affect the same
@@ -60,20 +64,23 @@ class SmartFiltersPlugin(object):
             if not isinstance(other, SmartFiltersPlugin):
                 continue
             if other.keyword == self.keyword:
-                raise bottle.PluginError("Found another plugin "
-                                         "with conflicting settings ("
-                                         "non-unique keyword).")
+                raise bottle.PluginError(
+                    "Found another plugin "
+                    "with conflicting settings ("
+                    "non-unique keyword)."
+                )
 
     def apply(self, callback, context):  # pragma: no cover
-        """Implement bottle.py API version 2 `apply` method.
-        """
+        """Implement bottle.py API version 2 `apply` method."""
         assert context
 
         def _wrapper(*args, **kwargs):
-            """Decorated Injection
-            """
-            setattr(bottle.request.query, 'smart_filters',
-                    lambda: partial(self.filter_set, bottle.request.query)())
+            """Decorated Injection"""
+            setattr(
+                bottle.request.query,
+                "smart_filters",
+                lambda: partial(self.filter_set, bottle.request.query)(),
+            )
 
             return callback(*args, **kwargs)
 
@@ -96,7 +103,9 @@ class SmartFiltersPlugin(object):
 
         for alias, value in request_data.items():
 
-            if self.separator not in value or set(value).intersection(self.json_identifiers):
+            if self.separator not in value or set(value).intersection(
+                self.json_identifiers
+            ):
                 try:
                     request_filters[alias] = ujson.loads(value)
                 except ValueError:
@@ -134,7 +143,7 @@ class RestFilter(object):
             filters = bottle.request.query.smart_filters()
             filter_spec = filters.get("filters")
             filter_spec = ast.literal_eval(filter_spec)
-        except Exception as e:
+        except Exception:
             raise HTTPResponse(status=404, body="url_is_not_valid")
         return filter_spec
 
@@ -144,7 +153,9 @@ def get_params_from_url(params: list):
     for param in params:
         search_field = bottle.request.query.smart_filters().get(param)
         if search_field:
-            fields_dict[str(param)] = str(search_field.encode("ISO-8859-1").decode("utf-8"))
+            fields_dict[str(param)] = str(
+                search_field.encode("ISO-8859-1").decode("utf-8")
+            )
         else:
             raise HTTPResponse(status=403, body="not_valid_field")
     return fields_dict
@@ -164,7 +175,9 @@ class MongoFilter(object):
 
     def filter(self):
         try:
-            result = self.model.mongoquery(self.query).query(**self.mongo_filter_query).end()
+            result = (
+                self.model.mongoquery(self.query).query(**self.mongo_filter_query).end()
+            )
             return result
         except Exception as e:
             raise HTTPError(403, e.args)

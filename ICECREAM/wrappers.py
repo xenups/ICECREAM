@@ -17,7 +17,9 @@ def timing(f):
         ts = time()
         result = f(*args, **kw)
         te = time()
-        logger.info('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te - ts))
+        logger.info(
+            "func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts)
+        )
         return result
 
     return wrap
@@ -26,16 +28,16 @@ def timing(f):
 def pass_data(func):
     def wrapper(*args, **kwargs):
         if request.json is not None:
-            kwargs['data'] = request.json
+            kwargs["data"] = request.json
         elif request.forms is not None:
             my_data = {}
             data_list = request.forms.dict
             for key in data_list.keys():
                 my_data[key] = data_list[key][0]
             if request.files is not None and request.files.dict is not None:
-                my_data['files'] = request.files.dict.get('files')
+                my_data["files"] = request.files.dict.get("files")
 
-            kwargs['data'] = my_data
+            kwargs["data"] = my_data
 
         rtn = func(*args, **kwargs)
         return rtn
@@ -43,16 +45,19 @@ def pass_data(func):
     return wrapper
 
 
-@bottle.route('/<:re:.*>', method='OPTIONS')
+@bottle.route("/<:re:.*>", method="OPTIONS")
 def cors(fn):
     def _cors(*args, **kwargs):
         # set CORS headers
-        bottle.response.headers['Access-Control-Allow-Origin'] = '*'
-        bottle.response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        bottle.response.headers["Access-Control-Allow-Origin"] = "*"
         bottle.response.headers[
-            'Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+            "Access-Control-Allow-Methods"
+        ] = "GET, POST, PUT, OPTIONS"
+        bottle.response.headers[
+            "Access-Control-Allow-Headers"
+        ] = "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
-        if bottle.request.method != 'OPTIONS':
+        if bottle.request.method != "OPTIONS":
             # actual request; reply with the actual response
             return fn(*args, **kwargs)
 
@@ -64,11 +69,11 @@ def db_handler(func):
         session = DataBaseConnectionManager().get_db_session()
         try:
             session.expire_on_commit = False
-            kwargs['db_session'] = session
+            kwargs["db_session"] = session
             rtn = func(*args, **kwargs)
-            kwargs['db_session'].commit()
+            kwargs["db_session"].commit()
             return rtn
-        except(SQLAlchemyError, bottle.HTTPError, Exception):
+        except (SQLAlchemyError, bottle.HTTPError, Exception):
             session.rollback()
             raise
 
@@ -92,5 +97,7 @@ def clear_cache(cached_url):
             redis.clear_ns(ns=cached_url)
             result = function(*args, **kwargs)
             return result
+
         return wrapper
+
     return decorator
