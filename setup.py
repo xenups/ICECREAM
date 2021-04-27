@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 setup(
     name='icecreamy',
-    version='0.0.6.3',
+    version='0.0.6.4',
     author='xenups',
     include_package_data=True,
     author_email="xenups@gmail.com",
@@ -57,10 +57,10 @@ setup(
         "simplerbac",
         "sqla-wrapper",
         "sqlacodegen",
-        "SQLAlchemy==1.3.23",
+        "SQLAlchemy==1.4.11",
         "sqlalchemy-filters",
         "SQLAlchemy-Searchable",
-        "SQLAlchemy-Utils",
+        "SQLAlchemy-Utils==0.37.0",
         "tornado",
         "tox",
         "virtualenv",
