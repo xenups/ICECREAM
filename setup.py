@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 setup(
     name='icecreamy',
-    version='0.0.6.3',
+    version='0.0.6.4',
     author='xenups',
     include_package_data=True,
     author_email="xenups@gmail.com",
