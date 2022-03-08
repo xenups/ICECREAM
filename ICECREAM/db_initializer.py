@@ -20,7 +20,7 @@ class ConnectionFactory(object):
     __metaclass__ = ABCMeta
 
     def connect(self):
-        return SQLAlchemy(self.get_database_uri(), pool_pre_ping=True)
+        return SQLAlchemy(self.get_database_uri())
 
     @abstractmethod
     def get_database_uri(self):
