@@ -68,7 +68,7 @@ class BaseDataBaseConnectionManager(object):
         if hasattr(request, "db_session"):
             return getattr(request, "db_session")
         else:
-            setattr(request, "db_session", self.db.session)
+            setattr(request, "db_session", self.db.Session())
             return getattr(request, "db_session")
 
     @staticmethod
